@@ -545,7 +545,9 @@
     .notepad,
     .properties,
     .game-app,
-    .games-launcher {
+    .games-launcher,
+    .store-app,
+    .installing-app {
       display: flex;
       flex-direction: column;
       height: 100%;
@@ -965,6 +967,121 @@
       margin-top: 4px;
       font-size: 0.84rem;
       color: var(--muted);
+    }
+
+    .store-app {
+      padding: 18px;
+      gap: 14px;
+      background: linear-gradient(160deg, var(--surface-strong), var(--surface-soft));
+    }
+
+    .store-head h2 {
+      margin: 0;
+      font-size: 1.16rem;
+    }
+
+    .store-head p {
+      margin: 6px 0 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .store-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      align-content: start;
+      overflow: auto;
+    }
+
+    .store-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface-strong);
+      padding: 14px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      text-align: left;
+    }
+
+    .store-card img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+    }
+
+    .store-icon-button {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      display: grid;
+      place-items: center;
+      padding: 4px;
+    }
+
+    .store-card strong {
+      display: block;
+      font-size: 0.98rem;
+    }
+
+    .store-card span {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .store-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .store-actions button {
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      color: var(--text);
+    }
+
+    .store-actions button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .installing-app {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 10px;
+      background: var(--surface-strong);
+      padding: 20px;
+    }
+
+    .installing-app img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+
+    .installing-app h3 {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .installing-app p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
     }
 
     .browser-home {
@@ -2111,8 +2228,35 @@
       terminal: "Assets/terminal.png",
       volume: "Assets/volume.png",
       web: "Assets/web.png",
-      assistant: "Assets/chat-bot.png"
+      assistant: "Assets/chat-bot.png",
+      store: "Store/store.png"
     };
+
+    const RECYCLE_BIN_ICONS = {
+      empty: "Recycle Bin/recycle-bin(empty).png",
+      full: "Recycle Bin/recycle-bin(full).png"
+    };
+
+    const STORE_APPS = [
+      {
+        id: "store-app-parkinson",
+        title: "Parkinson Assesment",
+        icon: "Store/Parkinson Assesment.png",
+        url: "https://huggingface.co/spaces/Penguindrum920/Parkinson_Disease_Assesment_Portal"
+      },
+      {
+        id: "store-app-aniverse",
+        title: "AniVerse",
+        icon: "Store/Aniverse.png",
+        url: "https://aniverse-tau.vercel.app/"
+      },
+      {
+        id: "store-app-pegasus",
+        title: "Pegasus",
+        icon: "Store/Pegasus.png",
+        url: "https://pegasus-rvitm.vercel.app/"
+      }
+    ];
 
     const WALLPAPERS = [
       { id: "bliss", title: "Bliss", path: "Wallpapers/wallpaper.jpg" },
@@ -2141,6 +2285,8 @@
       { id: "desktop-portfolio", title: "Projects", type: "folder", folderId: "portfolio", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
       { id: "desktop-skills", title: "Skills", type: "folder", folderId: "skills", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
       { id: "desktop-socials", title: "Socials", type: "folder", folderId: "socials", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "desktop-store", title: "Store", type: "store", icon: "Store/store.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" },
+      { id: "desktop-recycle-bin", title: "Recycle Bin", type: "recycle-bin", icon: RECYCLE_BIN_ICONS.empty, modified: FIXED_MODIFIED, size: "", typeLabel: "System folder" },
       { id: "desktop-ai", title: "Aditya AI", type: "assistant", icon: "assistant", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" },
       { id: "desktop-games", title: "Games", type: "games-launcher", icon: "Assets/games.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" }
     ];
@@ -2260,11 +2406,17 @@
           { id: "gmail-secondary", title: "Gmail (College)", type: "link", icon: "Socials/gmail.png", url: "mailto:rvit23bcs071.rvitm@rvei.edu.in", modified: FIXED_MODIFIED, size: "Internet", typeLabel: "Email Shortcut" },
           { id: "phone-whatsapp", title: "Phone / WhatsApp", type: "link", icon: "Socials/whatsapp.png", url: "https://wa.me/919131354583", modified: FIXED_MODIFIED, size: "Internet", typeLabel: "Contact Shortcut" }
         ]
+      },
+      "recycle-bin": {
+        id: "recycle-bin",
+        title: "Recycle Bin",
+        items: []
       }
     };
 
     const START_ITEMS = [
       { id: "start-assistant", title: "Aditya AI", icon: "assistant", open: () => openAssistant() },
+      { id: "start-store", title: "Store", icon: "Store/store.png", open: () => openStore() },
       { id: "start-about", title: "About Me", icon: "folder", open: () => openExplorer("about") },
       { id: "start-portfolio", title: "Projects", icon: "folder", open: () => openExplorer("portfolio") },
       { id: "start-games", title: "Games", icon: "Assets/games.png", open: () => openGamesLauncher() },
@@ -2297,6 +2449,8 @@
         { text: 'Type "help" for commands.', tone: "muted" }
       ],
       assistantLoading: false,
+      installedStoreApps: loadInstalledStoreApps(),
+      recycleBinItems: loadRecycleBinItems(),
       assistantLog: [
         { role: "assistant", text: "Aditya AI online. Ask about projects, skills, or tell me what to open." }
       ],
@@ -2308,6 +2462,185 @@
         "It is also agentic so you can ask it to open folders, files, websites and such.",
       ].join("\n")
     };
+
+    function loadInstalledStoreApps() {
+      try {
+        const raw = JSON.parse(localStorage.getItem("portfolio-installed-store-apps") || "[]");
+        if (!Array.isArray(raw)) return [];
+        const allowed = new Set(STORE_APPS.map((app) => app.id));
+        return raw.filter((id) => typeof id === "string" && allowed.has(id));
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function loadRecycleBinItems() {
+      try {
+        const raw = JSON.parse(localStorage.getItem("portfolio-recycle-bin") || "[]");
+        if (!Array.isArray(raw)) return [];
+        const allowed = new Set(STORE_APPS.map((app) => app.id));
+        return raw
+          .filter((entry) => entry && typeof entry === "object" && typeof entry.id === "string" && typeof entry.appId === "string")
+          .filter((entry) => allowed.has(entry.appId))
+          .map((entry) => ({
+            id: entry.id,
+            appId: entry.appId,
+            deletedAt: entry.deletedAt || FIXED_MODIFIED
+          }));
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveStoreState() {
+      try {
+        localStorage.setItem("portfolio-installed-store-apps", JSON.stringify(state.installedStoreApps));
+        localStorage.setItem("portfolio-recycle-bin", JSON.stringify(state.recycleBinItems));
+      } catch (error) {
+        return;
+      }
+    }
+
+    function findStoreApp(appId) {
+      return STORE_APPS.find((app) => app.id === appId) || null;
+    }
+
+    function recycleBinIcon() {
+      return state.recycleBinItems.length ? RECYCLE_BIN_ICONS.full : RECYCLE_BIN_ICONS.empty;
+    }
+
+    function desktopInstalledProjectItems() {
+      return state.installedStoreApps
+        .map((appId) => findStoreApp(appId))
+        .filter(Boolean)
+        .map((app) => ({
+          id: `desktop-installed-${app.id}`,
+          appId: app.id,
+          title: app.title,
+          type: "installed-project",
+          icon: app.icon,
+          url: app.url,
+          modified: FIXED_MODIFIED,
+          size: "Pending",
+          typeLabel: "Installed Application"
+        }));
+    }
+
+    function desktopItems() {
+      return [
+        ...DESKTOP_ITEMS.map((item) => (
+          item.id === "desktop-recycle-bin"
+            ? { ...item, icon: recycleBinIcon(), typeLabel: state.recycleBinItems.length ? "Recycle Bin (Full)" : "Recycle Bin" }
+            : item
+        )),
+        ...desktopInstalledProjectItems()
+      ];
+    }
+
+    function recycleBinFolderItems() {
+      return state.recycleBinItems
+        .map((entry) => {
+          const app = findStoreApp(entry.appId);
+          if (!app) return null;
+          return {
+            id: entry.id,
+            appId: entry.appId,
+            title: app.title,
+            type: "recycle-entry",
+            icon: app.icon,
+            modified: entry.deletedAt || FIXED_MODIFIED,
+            size: "Pending",
+            typeLabel: "Deleted Application"
+          };
+        })
+        .filter(Boolean);
+    }
+
+    function refreshWorkspaceViews() {
+      renderDesktopIcons();
+      renderStartMenu();
+      state.windows
+        .filter((win) => win.kind === "explorer" || win.kind === "store")
+        .forEach((win) => {
+          renderWindowBody(win);
+          applyWindow(win);
+        });
+    }
+
+    function installStoreApp(appId) {
+      const app = findStoreApp(appId);
+      if (!app) return;
+
+      if (state.installedStoreApps.includes(appId)) {
+        openPortfolioOverlay(app.url);
+        return;
+      }
+
+      const installer = createWindow({
+        kind: "installing",
+        title: "Installing",
+        icon: "Store/store.png",
+        item: app,
+        resizable: false,
+        controls: { min: false, max: false, close: false },
+        rect: defaultRect("properties", true),
+        minW: 380,
+        minH: 180
+      });
+
+      setTimeout(() => {
+        if (!state.installedStoreApps.includes(appId)) {
+          state.installedStoreApps.push(appId);
+        }
+        state.recycleBinItems = state.recycleBinItems.filter((entry) => entry.appId !== appId);
+        saveStoreState();
+        refreshWorkspaceViews();
+        removeWindow(installer.id);
+      }, 1100);
+    }
+
+    function uninstallStoreApp(appId) {
+      if (!state.installedStoreApps.includes(appId)) return;
+      const existing = state.recycleBinItems.find((entry) => entry.appId === appId);
+      if (!existing) {
+        state.recycleBinItems.push({
+          id: `recycle-${appId}-${Date.now()}`,
+          appId,
+          deletedAt: new Date().toISOString()
+        });
+      }
+      state.installedStoreApps = state.installedStoreApps.filter((id) => id !== appId);
+      saveStoreState();
+      refreshWorkspaceViews();
+    }
+
+    function restoreRecycleEntry(entryId) {
+      const entry = state.recycleBinItems.find((item) => item.id === entryId);
+      if (!entry) return;
+      if (!state.installedStoreApps.includes(entry.appId)) {
+        state.installedStoreApps.push(entry.appId);
+      }
+      state.recycleBinItems = state.recycleBinItems.filter((item) => item.id !== entryId);
+      saveStoreState();
+      refreshWorkspaceViews();
+    }
+
+    function restoreAllRecycleEntries() {
+      state.recycleBinItems.forEach((entry) => {
+        if (!state.installedStoreApps.includes(entry.appId)) {
+          state.installedStoreApps.push(entry.appId);
+        }
+      });
+      state.recycleBinItems = [];
+      saveStoreState();
+      refreshWorkspaceViews();
+    }
+
+    function emptyRecycleBin() {
+      state.recycleBinItems = [];
+      saveStoreState();
+      refreshWorkspaceViews();
+    }
 
     const refs = {
       boot: document.getElementById("boot"),
@@ -2488,7 +2821,7 @@
     }
 
     function renderDesktopIcons() {
-      const items = sortFolderItems([...DESKTOP_ITEMS], state.desktopSort);
+      const items = sortFolderItems(desktopItems(), state.desktopSort);
       refs.icons.className = `desktop-icons view-${state.desktopView}`;
       refs.icons.innerHTML = items.map((item) => `
         <button class="desktop-icon ${isSelected("desktop", item.id) ? "selected" : ""}" type="button" data-scope="desktop" data-item-id="${item.id}">
@@ -2626,11 +2959,13 @@
     }
 
     function folderItems(folderId) {
+      if (folderId === "desktop") return desktopItems();
+      if (folderId === "recycle-bin") return recycleBinFolderItems();
       return getFolder(folderId).items.slice();
     }
 
     function getDesktopItem(itemId) {
-      return DESKTOP_ITEMS.find((item) => item.id === itemId) || null;
+      return desktopItems().find((item) => item.id === itemId) || null;
     }
 
     function resolveExplorerItem(win, itemId) {
@@ -2859,6 +3194,10 @@
         host.innerHTML = renderGameApp(win.item);
       } else if (win.kind === "games-launcher") {
         host.innerHTML = renderGamesLauncher();
+      } else if (win.kind === "store") {
+        host.innerHTML = renderStore();
+      } else if (win.kind === "installing") {
+        host.innerHTML = renderInstalling(win.item);
       } else if (win.kind === "properties") {
         host.innerHTML = renderProperties(win.item);
       } else if (win.kind === "personalize") {
@@ -2884,7 +3223,7 @@
       const canGoBack = win.historyIndex > 0;
       const canGoForward = win.historyIndex < win.history.length - 1;
       const canGoUp = win.folderId !== "desktop";
-      const sidebar = ["desktop", "about", "portfolio", "games", "skills", "socials"];
+      const sidebar = ["desktop", "about", "portfolio", "games", "skills", "socials", "recycle-bin"];
       const crumbs = folderPath(win.folderId);
 
       return `
@@ -3035,7 +3374,7 @@
         <section class="terminal">
           <div class="terminal-head">
             <span>Windows Terminal</span>
-            <span>Supported commands: help, open about, open portfolio, open games, open socials, open adityaai, theme dark, theme light, clear, time, date, shutdown</span>
+            <span>Supported commands: help, open about, open portfolio, open games, open skills, open socials, open store, open recyclebin, open adityaai, theme dark, theme light, clear, time, date, shutdown</span>
           </div>
           <div class="terminal-log" data-terminal-log>
             ${state.terminalLog.map((line) => `<div class="terminal-line ${line.tone || ""}">${esc(line.text)}</div>`).join("")}
@@ -3135,6 +3474,47 @@
               </button>
             `).join("")}
           </div>
+        </section>
+      `;
+    }
+
+    function renderStore() {
+      return `
+        <section class="store-app">
+          <div class="store-head">
+            <h2>Microsoft Store</h2>
+            <p>Install portfolio project apps on your desktop.</p>
+          </div>
+          <div class="store-grid">
+            ${STORE_APPS.map((app) => {
+              const installed = state.installedStoreApps.includes(app.id);
+              return `
+                <article class="store-card">
+                  <button class="store-icon-button" type="button" data-store-install="${app.id}" aria-label="Install ${esc(app.title)}">
+                    <img src="${esc(app.icon)}" alt="${esc(app.title)}">
+                  </button>
+                  <div>
+                    <strong>${esc(app.title)}</strong>
+                    <span>${installed ? "Installed" : "Ready to install"}</span>
+                  </div>
+                  <div class="store-actions">
+                    <button type="button" data-store-install="${app.id}">${installed ? "Reinstall" : "Install"}</button>
+                    <button type="button" data-store-open="${app.id}" ${installed ? "" : "disabled"}>Open</button>
+                  </div>
+                </article>
+              `;
+            }).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderInstalling(app) {
+      return `
+        <section class="installing-app">
+          <img src="${esc(app?.icon || ASSETS.store)}" alt="${esc(app?.title || "Installing")}">
+          <h3>Installing ${esc(app?.title || "app")}...</h3>
+          <p>Please wait while Windows prepares your app.</p>
         </section>
       `;
     }
@@ -3527,6 +3907,23 @@
       });
     }
 
+    function openStore() {
+      const existing = state.windows.find((win) => win.kind === "store");
+      if (existing) {
+        focusWindow(existing.id);
+        renderWindowBody(existing);
+        return existing;
+      }
+
+      return createWindow({
+        kind: "store",
+        title: "Microsoft Store",
+        icon: "Store/store.png",
+        minW: 860,
+        minH: 520
+      });
+    }
+
     function openProperties(item) {
       return createWindow({
         kind: "properties",
@@ -3598,8 +3995,28 @@
         return;
       }
 
+      if (item.type === "store") {
+        openStore();
+        return;
+      }
+
+      if (item.type === "recycle-bin") {
+        openExplorer("recycle-bin");
+        return;
+      }
+
+      if (item.type === "installed-project") {
+        openPortfolioOverlay(item.url);
+        return;
+      }
+
       if (item.type === "assistant") {
         openAssistant();
+        return;
+      }
+
+      if (item.type === "recycle-entry") {
+        restoreRecycleEntry(item.id);
         return;
       }
 
@@ -3819,6 +4236,8 @@
         terminalSay("open games");
         terminalSay("open skills");
         terminalSay("open socials");
+        terminalSay("open store");
+        terminalSay("open recyclebin");
         terminalSay("open chrome");
         terminalSay("open terminal");
         terminalSay("open notepad");
@@ -3868,6 +4287,12 @@
         } else if (target === "socials" || target === "social") {
           openExplorer("socials");
           terminalSay("Opened Socials.");
+        } else if (target === "store") {
+          openStore();
+          terminalSay("Opened Store.");
+        } else if (target === "recyclebin" || target === "recycle") {
+          openExplorer("recycle-bin");
+          terminalSay("Opened Recycle Bin.");
         } else if (target === "chrome" || target === "browser") {
           openBrowser(HOME);
           terminalSay("Opened Chrome.");
@@ -3914,6 +4339,42 @@
 
     function buildContextEntries(item, scope, winId) {
       const located = withLocation(item, itemLocation(scope, item));
+      if (item.type === "recycle-bin") {
+        return [
+          { label: "Open", action: () => openExplorer("recycle-bin") },
+          { label: "Restore all items", action: () => restoreAllRecycleEntries() },
+          { label: "Empty Recycle Bin", action: () => emptyRecycleBin() },
+          { separator: true },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
+      if (item.type === "store") {
+        return [
+          { label: "Open", action: () => openStore() },
+          { separator: true },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
+      if (item.type === "installed-project") {
+        return [
+          { label: "Open", action: () => openPortfolioOverlay(item.url) },
+          { separator: true },
+          { label: "Delete", action: () => uninstallStoreApp(item.appId) },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
+      if (item.type === "recycle-entry") {
+        return [
+          { label: "Restore", action: () => restoreRecycleEntry(item.id) },
+          { label: "Delete", action: () => { state.recycleBinItems = state.recycleBinItems.filter((entry) => entry.id !== item.id); saveStoreState(); refreshWorkspaceViews(); } },
+          { separator: true },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
       if (item.type === "folder") {
         return [
           { label: "Open", action: () => openItem(item, scope === "desktop" ? {} : { winId }) },
@@ -4273,6 +4734,19 @@
         const gameId = launchGame.dataset.launchGame;
         const gameItem = FOLDERS.games.items.find((item) => item.id === gameId && item.type === "game");
         if (gameItem) openGameWindow(gameItem);
+        return;
+      }
+
+      const storeInstall = event.target.closest("[data-store-install]");
+      if (storeInstall) {
+        installStoreApp(storeInstall.dataset.storeInstall);
+        return;
+      }
+
+      const storeOpen = event.target.closest("[data-store-open]");
+      if (storeOpen) {
+        const app = findStoreApp(storeOpen.dataset.storeOpen);
+        if (app) openPortfolioOverlay(app.url);
         return;
       }
 
