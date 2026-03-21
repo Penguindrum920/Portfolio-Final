@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
 COPY backend /app/backend
 COPY data /app/data
-COPY "About Me" "/app/About Me"
+COPY ["About Me", "/app/About Me"]
 
 EXPOSE 7860
 
