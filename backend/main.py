@@ -651,11 +651,12 @@ def grounded_answer(user_message: str, retrieved: list[dict[str, Any]]) -> str:
         context_blocks.append(
             f"[Chunk {idx} | source: {item['source']} | score: {item['score']:.3f}]\n{item['text']}"
         )
+    context_text = "\n\n".join(context_blocks)
 
     prompt = (
         "Use only the context below. If answer is not explicitly present, reply exactly: "
         "I don't have that information yet.\n\n"
-        f"Context:\n{'\n\n'.join(context_blocks)}\n\n"
+        f"Context:\n{context_text}\n\n"
         f"User query: {user_message}"
     )
 
