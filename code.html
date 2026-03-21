@@ -1,0 +1,4496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio</title>
+  <style>
+    :root {
+      --wallpaper: url("Wallpapers/wallpaper.jpg");
+      --taskbar-height: 56px;
+      --window-radius: 16px;
+      --window-border: rgba(255, 255, 255, 0.62);
+      --shadow: 0 24px 48px rgba(10, 15, 24, 0.22);
+      --surface: rgba(249, 250, 252, 0.88);
+      --surface-strong: rgba(255, 255, 255, 0.96);
+      --surface-soft: rgba(239, 243, 248, 0.92);
+      --surface-hover: rgba(228, 235, 244, 0.94);
+      --surface-glass: rgba(255, 255, 255, 0.72);
+      --sidebar: rgba(243, 246, 250, 0.94);
+      --taskbar: rgba(242, 246, 252, 0.9);
+      --taskbar-text: #1e2733;
+      --menu: rgba(255, 255, 255, 0.98);
+      --text: #12151a;
+      --muted: #596270;
+      --line: rgba(28, 34, 44, 0.12);
+      --accent: #0b64f4;
+      --selected: rgba(11, 100, 244, 0.14);
+      --clock-hover: rgba(0, 0, 0, 0.06);
+      --icon-text: #ffffff;
+      --empty: rgba(17, 22, 30, 0.42);
+      --calendar-pill: rgba(11, 100, 244, 0.12);
+      --calendar-today: #0b64f4;
+      --calendar-today-text: #ffffff;
+      --viewer-backdrop: rgba(255, 255, 255, 0.96);
+      --terminal-bg: #0f1116;
+      --terminal-text: #e6edf7;
+      --terminal-muted: rgba(230, 237, 247, 0.62);
+      --note-bg: #ffffff;
+      --note-line: rgba(0, 0, 0, 0.06);
+      --desktop-overlay: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(5, 10, 18, 0.14));
+    }
+
+    body[data-theme="dark"] {
+      --window-border: rgba(255, 255, 255, 0.08);
+      --surface: rgba(30, 34, 39, 0.96);
+      --surface-strong: rgba(33, 37, 43, 0.98);
+      --surface-soft: rgba(39, 44, 50, 0.96);
+      --surface-hover: rgba(53, 58, 66, 0.96);
+      --surface-glass: rgba(28, 31, 37, 0.82);
+      --sidebar: rgba(26, 30, 35, 0.98);
+      --taskbar: rgba(15, 23, 42, 1);
+      --taskbar-text: #eef5ff;
+      --menu: rgba(33, 36, 42, 0.98);
+      --text: #edf1f7;
+      --muted: #a2acba;
+      --line: rgba(255, 255, 255, 0.09);
+      --selected: rgba(82, 137, 255, 0.22);
+      --clock-hover: rgba(255, 255, 255, 0.08);
+      --icon-text: #f7f9fc;
+      --empty: rgba(255, 255, 255, 0.34);
+      --calendar-pill: rgba(82, 137, 255, 0.18);
+      --viewer-backdrop: rgba(25, 28, 33, 0.96);
+      --note-bg: #191c21;
+      --note-line: rgba(255, 255, 255, 0.05);
+      --desktop-overlay: linear-gradient(180deg, rgba(4, 7, 12, 0.08), rgba(3, 7, 14, 0.32));
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background: #09111d;
+      user-select: none;
+    }
+
+    body {
+      position: relative;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+      color: inherit;
+    }
+
+    button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    input,
+    textarea {
+      border: 0;
+      outline: none;
+      background: transparent;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .boot,
+    .shutdown {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      background: radial-gradient(circle at center, rgba(38, 110, 249, 0.16), transparent 0 28%), linear-gradient(180deg, #04070d, #09101a);
+      color: #f2f6ff;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+    }
+
+    .boot.fade,
+    .shutdown.fade {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .portfolio-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 190;
+      display: none;
+      flex-direction: column;
+      background: #05080f;
+    }
+
+    .portfolio-overlay.open {
+      display: flex;
+    }
+
+    .portfolio-overlay-head {
+      min-height: 44px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(8, 12, 18, 0.9);
+      color: #edf3ff;
+    }
+
+    .portfolio-overlay-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(237, 243, 255, 0.86);
+    }
+
+    .portfolio-overlay-close {
+      min-width: 40px;
+      min-height: 30px;
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .portfolio-overlay-close:hover {
+      background: #d2212f;
+    }
+
+    .portfolio-overlay-frame {
+      flex: 1;
+      width: 100%;
+      border: 0;
+      background: #05080f;
+    }
+    .boot img,
+    .shutdown img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 30px rgba(11, 100, 244, 0.28));
+    }
+
+    .boot h1,
+    .shutdown h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .boot p,
+    .shutdown p {
+      margin: 0;
+      color: rgba(242, 246, 255, 0.72);
+    }
+
+    .spin {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.14);
+      border-top-color: rgba(120, 185, 255, 1);
+      animation: spin 0.82s linear infinite;
+    }
+
+    .desktop {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      opacity: 0;
+      transition: opacity 0.75s ease;
+      overflow: hidden;
+    }
+
+    .desktop.ready {
+      opacity: 1;
+    }
+
+    .wallpaper,
+    .wallpaper-tint {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .wallpaper {
+      background-image: var(--desktop-overlay), var(--wallpaper);
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.02);
+    }
+
+    .wallpaper-tint {
+      background: radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.16), transparent 0 24%), radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.12), transparent 0 18%);
+      mix-blend-mode: screen;
+      opacity: 0.7;
+    }
+
+    .desktop-icons {
+      position: absolute;
+      top: 20px;
+      left: 18px;
+      bottom: calc(var(--taskbar-height) + 18px);
+      display: grid;
+      grid-auto-rows: 98px;
+      gap: 8px;
+      z-index: 2;
+      align-content: start;
+    }
+
+    .desktop-icon {
+      width: 94px;
+      border-radius: 8px;
+      padding: 8px 6px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--icon-text);
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+      transition: background 0.16s ease;
+    }
+
+    .desktop-icon:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .desktop-icon.selected {
+      background: rgba(255, 255, 255, 0.18);
+      outline: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .desktop-icon img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .desktop-icon span {
+      width: 100%;
+      font-size: 0.82rem;
+      line-height: 1.2;
+      text-align: center;
+      word-break: break-word;
+      pointer-events: none;
+    }
+
+    .desktop-icons.view-large {
+      grid-auto-rows: 104px;
+    }
+
+    .desktop-icons.view-large .desktop-icon {
+      width: 102px;
+    }
+
+    .desktop-icons.view-large .desktop-icon img {
+      width: 56px;
+      height: 56px;
+    }
+
+    .desktop-icons.view-medium {
+      grid-auto-rows: 90px;
+    }
+
+    .desktop-icons.view-medium .desktop-icon {
+      width: 88px;
+      padding-top: 6px;
+    }
+
+    .desktop-icons.view-medium .desktop-icon img {
+      width: 42px;
+      height: 42px;
+    }
+
+    .window-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .window {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--window-border);
+      border-radius: var(--window-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(24px) saturate(140%);
+      pointer-events: auto;
+    }
+
+    .window.minimized {
+      display: none;
+    }
+
+    .window.maximized {
+      border-radius: 12px;
+    }
+
+    .titlebar {
+      min-height: 40px;
+      padding: 0 6px 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-glass);
+      border-bottom: 1px solid var(--line);
+      cursor: grab;
+    }
+
+    .titlebar:active {
+      cursor: grabbing;
+    }
+
+    .window.no-drag .titlebar {
+      cursor: default;
+    }
+
+    .title {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .title-icon {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+    }
+
+    .title-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: stretch;
+      gap: 2px;
+      margin-left: auto;
+    }
+
+    .window-control {
+      width: 44px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      color: var(--muted);
+      transition: background 0.16s ease, color 0.16s ease;
+    }
+
+    .window-control svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      fill: none;
+      pointer-events: none;
+    }
+
+    .window-control:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--text);
+    }
+
+    body[data-theme="dark"] .window-control:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .window-control.close:hover {
+      background: #e81123;
+      color: #ffffff;
+    }
+
+    .window-body {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: var(--surface-strong);
+    }
+
+    .resize-handle {
+      position: absolute;
+      z-index: 5;
+    }
+
+    .resize-handle[data-dir="n"],
+    .resize-handle[data-dir="s"] {
+      left: 8px;
+      right: 8px;
+      height: 8px;
+    }
+
+    .resize-handle[data-dir="n"] {
+      top: -4px;
+      cursor: n-resize;
+    }
+
+    .resize-handle[data-dir="s"] {
+      bottom: -4px;
+      cursor: s-resize;
+    }
+
+    .resize-handle[data-dir="e"],
+    .resize-handle[data-dir="w"] {
+      top: 8px;
+      bottom: 8px;
+      width: 8px;
+    }
+
+    .resize-handle[data-dir="e"] {
+      right: -4px;
+      cursor: e-resize;
+    }
+
+    .resize-handle[data-dir="w"] {
+      left: -4px;
+      cursor: w-resize;
+    }
+
+    .resize-handle[data-dir="ne"],
+    .resize-handle[data-dir="nw"],
+    .resize-handle[data-dir="se"],
+    .resize-handle[data-dir="sw"] {
+      width: 14px;
+      height: 14px;
+    }
+
+    .resize-handle[data-dir="ne"] {
+      top: -6px;
+      right: -6px;
+      cursor: ne-resize;
+    }
+
+    .resize-handle[data-dir="nw"] {
+      top: -6px;
+      left: -6px;
+      cursor: nw-resize;
+    }
+
+    .resize-handle[data-dir="se"] {
+      right: -6px;
+      bottom: -6px;
+      cursor: se-resize;
+    }
+
+    .resize-handle[data-dir="sw"] {
+      left: -6px;
+      bottom: -6px;
+      cursor: sw-resize;
+    }
+
+    .window.maximized .resize-handle,
+    .window.fixed-size .resize-handle {
+      display: none;
+    }
+
+    .window-grip {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+      opacity: 0.68;
+      background:
+        linear-gradient(135deg, transparent 0 48%, var(--line) 48% 54%, transparent 54% 66%, var(--line) 66% 72%, transparent 72%);
+    }
+
+    .window.maximized .window-grip,
+    .window.fixed-size .window-grip {
+      display: none;
+    }
+
+    .explorer,
+    .browser,
+    .terminal,
+    .viewer,
+    .notepad,
+    .properties,
+    .game-app,
+    .games-launcher {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .explorer-toolbar,
+    .browser-toolbar {
+      min-height: 54px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface-soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar-spacer {
+      flex: 1;
+      min-width: 20px;
+    }
+
+    .toolbar-button,
+    .nav-button {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text);
+      transition: background 0.16s ease;
+    }
+
+    .toolbar-button:hover,
+    .nav-button:hover {
+      background: var(--surface-hover);
+    }
+
+    .nav-button {
+      width: 34px;
+      padding: 0;
+      font-size: 0.98rem;
+    }
+
+    .nav-button:disabled {
+      opacity: 0.42;
+      cursor: default;
+    }
+
+    .address-bar,
+    .search-box,
+    .browser-address {
+      min-height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-strong);
+    }
+
+    .address-bar {
+      min-width: 240px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .search-box {
+      width: 220px;
+      flex: 0 0 auto;
+    }
+
+    .search-box input,
+    .browser-address input {
+      width: 100%;
+      color: var(--text);
+    }
+
+    .crumb {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.87rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .crumb button {
+      min-height: 28px;
+      padding: 0 6px;
+      border-radius: 6px;
+      color: inherit;
+    }
+
+    .crumb button:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .crumb-sep {
+      opacity: 0.55;
+    }
+
+    .explorer-shell {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 212px 1fr;
+      background: var(--surface-strong);
+    }
+    .sidebar {
+      padding: 10px 8px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sidebar-label {
+      padding: 8px 10px 6px;
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .sidebar-item {
+      min-height: 38px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 8px;
+      color: var(--text);
+      transition: background 0.16s ease;
+    }
+
+    .sidebar-item:hover {
+      background: var(--surface-hover);
+    }
+
+    .sidebar-item.active {
+      background: var(--selected);
+    }
+
+    .sidebar-item img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
+    .folder-pane {
+      min-height: 0;
+      padding: 12px;
+      overflow: auto;
+      background: var(--surface-strong);
+    }
+
+    .entry-grid {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .entry-grid.large {
+      grid-template-columns: repeat(auto-fill, minmax(122px, 1fr));
+    }
+
+    .entry-grid.medium {
+      grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    }
+
+    .entry {
+      min-height: 88px;
+      border-radius: 8px;
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      text-align: center;
+      color: var(--text);
+      transition: background 0.16s ease;
+    }
+
+    .entry:hover {
+      background: var(--surface-hover);
+    }
+
+    .entry.selected {
+      background: var(--selected);
+    }
+
+    .entry.large {
+      min-height: 102px;
+    }
+
+    .entry-icon {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      flex: 0 0 auto;
+      pointer-events: none;
+    }
+
+    .entry.large .entry-icon {
+      width: 52px;
+      height: 52px;
+    }
+
+    .entry-label {
+      width: 100%;
+      font-size: 0.83rem;
+      line-height: 1.25;
+      word-break: break-word;
+      pointer-events: none;
+    }
+
+    .details-view {
+      min-width: 620px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .details-head,
+    .details-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 3fr) minmax(160px, 2fr) minmax(120px, 1.2fr) minmax(100px, 1fr);
+      align-items: center;
+      gap: 12px;
+      padding: 0 14px;
+    }
+
+    .details-head {
+      min-height: 38px;
+      font-size: 0.77rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: var(--surface-soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .details-row {
+      min-height: 42px;
+      font-size: 0.88rem;
+      text-align: left;
+      transition: background 0.16s ease;
+    }
+
+    .details-row + .details-row {
+      border-top: 1px solid var(--line);
+    }
+
+    .details-row:hover {
+      background: var(--surface-hover);
+    }
+
+    .details-row.selected {
+      background: var(--selected);
+    }
+
+    .details-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .details-name img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .details-name span:first-of-type {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .empty-folder {
+      min-height: calc(100% - 12px);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--empty);
+      text-align: center;
+    }
+
+    .empty-folder p {
+      margin: 0;
+      font-size: 0.96rem;
+    }
+
+    .browser-address {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .browser-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface-strong);
+    }
+
+    .browser-note {
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .browser-frame {
+      flex: 1;
+      min-height: 0;
+      background: #ffffff;
+    }
+
+    .browser-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #ffffff;
+    }
+
+    .game-app-shell {
+      flex: 1;
+      min-height: 0;
+      background: #000000;
+      overflow: hidden;
+    }
+
+    .game-app-shell iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: #000000;
+    }
+
+    .games-launcher {
+      padding: 18px;
+      gap: 14px;
+      background: linear-gradient(160deg, var(--surface-strong), var(--surface-soft));
+    }
+
+    .games-launcher-head h2 {
+      margin: 0;
+      font-size: 1.16rem;
+    }
+
+    .games-launcher-head p {
+      margin: 6px 0 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .games-launcher-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      align-content: start;
+    }
+
+    .game-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface-strong);
+      padding: 14px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      text-align: left;
+      color: var(--text);
+      transition: transform 0.16s ease, background 0.16s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-2px);
+      background: var(--surface-hover);
+    }
+
+    .game-card img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    .game-card strong {
+      display: block;
+      font-size: 0.98rem;
+    }
+
+    .game-card span {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .browser-home {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 32px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(240, 244, 250, 0.98));
+    }
+
+    body[data-theme="dark"] .browser-home {
+      background: linear-gradient(180deg, #161a1f, #101318);
+    }
+
+    .browser-home img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+
+    .browser-home h2 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .browser-home p {
+      margin: 0;
+      max-width: 520px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.55;
+    }
+
+    .browser-home-search {
+      width: min(640px, 100%);
+      min-height: 48px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--surface-strong);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .browser-home-search input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .browser-quick {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .browser-quick button {
+      min-height: 34px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: var(--surface-strong);
+      border: 1px solid var(--line);
+    }
+
+    .terminal {
+      background: var(--terminal-bg);
+      color: var(--terminal-text);
+    }
+
+    .terminal-head {
+      min-height: 42px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--terminal-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .terminal-log {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 14px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      user-select: text;
+    }
+
+    .terminal-line {
+      margin-bottom: 6px;
+    }
+
+    .terminal-line.cmd {
+      color: #7bc3ff;
+    }
+
+    .terminal-line.muted {
+      color: var(--terminal-muted);
+    }
+
+    .terminal-form {
+      min-height: 48px;
+      padding: 10px 14px 14px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .terminal-form input {
+      color: var(--terminal-text);
+      user-select: text;
+    }
+
+    .notepad {
+      background: var(--note-bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notepad-head {
+      min-height: 32px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+
+    .notepad-menu {
+      min-height: 30px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-strong);
+      font-size: 0.8rem;
+    }
+
+    .notepad-menu button {
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    .notepad-menu button:hover {
+      background: var(--surface-hover);
+    }
+
+    .notepad textarea {
+      flex: 1;
+      min-height: 0;
+      resize: none;
+      padding: 16px;
+      color: var(--text);
+      line-height: 1.55;
+      font-family: "Consolas", "Lucida Console", "Courier New", monospace;
+      font-size: 0.9rem;
+      background: #ffffff;
+      background-image: none;
+      user-select: text;
+    }
+
+    body[data-theme="dark"] .notepad textarea {
+      background: #1a1c20;
+      color: #f5f7fb;
+    }
+
+    .notepad-status {
+      min-height: 24px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      border-top: 1px solid var(--line);
+      background: var(--surface-soft);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .viewer {
+      background: var(--viewer-backdrop);
+      align-items: stretch;
+      justify-content: stretch;
+    }
+
+    .viewer-card {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .viewer-card img.viewer-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 18px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .viewer-card object {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .viewer-fallback {
+      width: min(460px, 100%);
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      display: grid;
+      justify-items: center;
+      gap: 14px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .viewer-fallback img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+
+    .viewer-fallback h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.12rem;
+    }
+
+    .viewer-fallback p {
+      margin: 0;
+      line-height: 1.55;
+    }
+
+    .properties {
+      padding: 18px;
+      gap: 18px;
+      background: var(--surface-strong);
+    }
+
+    .properties-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .properties-top img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    .properties-top strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .properties-top span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .properties-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .property-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+
+    .property-row span:first-child {
+      color: var(--muted);
+    }
+
+    .personalize {
+      min-height: 0;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 14px;
+      background: var(--surface-strong);
+    }
+
+    .personalize-copy {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .wallpaper-grid {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      overflow: auto;
+    }
+
+    .wallpaper-card {
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      display: grid;
+      gap: 10px;
+      text-align: left;
+      transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+    }
+
+    .wallpaper-card:hover {
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+    }
+
+    .wallpaper-card.active {
+      border-color: var(--accent);
+      background: var(--selected);
+    }
+
+    .wallpaper-card img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 10px;
+      background: var(--surface);
+    }
+
+    .wallpaper-card strong {
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .menu-flyout,
+    .start-menu,
+    .clock-flyout {
+      position: absolute;
+      z-index: 16;
+      border-radius: 14px;
+      border: 1px solid var(--window-border);
+      background: var(--menu);
+      box-shadow: 0 20px 42px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(20px) saturate(150%);
+      color: var(--text);
+    }
+
+    .menu-flyout {
+      min-width: 220px;
+      padding: 6px;
+      display: grid;
+      gap: 2px;
+    }
+
+    .menu-flyout button {
+      min-height: 34px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-radius: 8px;
+      text-align: left;
+    }
+
+    .menu-flyout button:hover {
+      background: var(--surface-hover);
+    }
+
+    .menu-flyout button.active {
+      background: var(--selected);
+    }
+
+    .menu-flyout hr {
+      width: 100%;
+      height: 1px;
+      margin: 6px 0;
+      border: 0;
+      background: var(--line);
+    }
+
+    .start-menu {
+      left: 50%;
+      bottom: calc(var(--taskbar-height) + 10px);
+      width: min(620px, calc(100vw - 24px));
+      padding: 14px;
+      transform: translateX(-50%) translateY(12px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+    }
+
+    .start-menu.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .start-search {
+      min-height: 46px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-strong);
+    }
+
+    .start-search input {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .start-head {
+      margin: 14px 4px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.83rem;
+      color: var(--muted);
+    }
+
+    .start-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .start-item {
+      min-height: 84px;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 12px;
+      background: var(--surface-soft);
+      transition: background 0.16s ease;
+    }
+
+    .start-item:hover {
+      background: var(--surface-hover);
+    }
+
+    .start-item img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .start-item span {
+      font-size: 0.83rem;
+      text-align: center;
+    }
+
+    .start-footer {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .start-power {
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+
+    .clock-flyout {
+      right: 12px;
+      bottom: calc(var(--taskbar-height) + 8px);
+      width: min(340px, calc(100vw - 24px));
+      min-height: 422px;
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+    }
+
+    .clock-flyout.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .clock-now strong {
+      display: block;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .clock-now span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+    }
+
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .calendar-title-group {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .calendar-nav-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+    }
+
+    .calendar-nav-btn:hover,
+    .calendar-label:hover {
+      background: var(--surface-hover);
+    }
+
+    .calendar-label {
+      min-width: 112px;
+      height: 32px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .calendar-label.calendar-year {
+      min-width: 124px;
+    }
+
+    .calendar-label.active {
+      background: var(--surface-hover);
+    }
+
+    .calendar-body {
+      min-height: 278px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .calendar-weekdays,
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+      text-align: center;
+    }
+
+    .calendar-weekdays {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .calendar-grid {
+      min-height: 216px;
+      align-content: stretch;
+    }
+
+    .calendar-grid.days {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-rows: repeat(6, minmax(0, 34px));
+    }
+
+    .calendar-grid.months {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+    }
+
+    .calendar-grid.years {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: repeat(4, minmax(0, 1fr));
+    }
+
+    .calendar-cell,
+    .calendar-pick {
+      min-height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 0.86rem;
+    }
+
+    .calendar-cell.muted {
+      color: var(--muted);
+      opacity: 0.55;
+    }
+
+    .calendar-cell.today {
+      background: var(--calendar-today);
+      color: var(--calendar-today-text);
+    }
+
+    .calendar-pick {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 8px;
+      color: var(--text);
+    }
+
+    .calendar-pick.selected {
+      background: var(--calendar-pill);
+      font-weight: 600;
+    }
+
+    .calendar-pick.current:not(.selected) {
+      box-shadow: inset 0 0 0 1px var(--calendar-today);
+    }
+
+    .taskbar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      min-height: var(--taskbar-height);
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-radius: 0;
+      background: var(--taskbar);
+      border-top: 1px solid var(--window-border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(26px) saturate(160%);
+      color: var(--taskbar-text);
+      z-index: 12;
+    }
+
+    .taskbar-center {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .taskbar-tray {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+
+    .taskbar-btn,
+    .tray-btn,
+    .clock-btn,
+    .task-btn {
+      min-height: 36px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.16s ease;
+    }
+
+    .taskbar-btn,
+    .tray-btn {
+      min-width: 38px;
+      padding: 0 8px;
+    }
+
+    .taskbar-btn:hover,
+    .tray-btn:hover,
+    .clock-btn:hover,
+    .task-btn:hover {
+      background: var(--clock-hover);
+    }
+
+    .taskbar-btn.active,
+    .tray-btn.active,
+    .task-btn.active {
+      background: var(--selected);
+    }
+
+    .taskbar-btn img,
+    .tray-btn img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .start-btn img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .taskbar-running {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: auto hidden;
+      scrollbar-width: none;
+    }
+
+    .taskbar-running::-webkit-scrollbar {
+      display: none;
+    }
+
+    .task-btn {
+      flex: 0 0 auto;
+      max-width: 180px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      color: inherit;
+    }
+
+    .task-btn img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .task-btn span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.82rem;
+    }
+
+    .theme-btn {
+      min-width: 108px;
+      padding: 0 10px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .theme-btn svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+    }
+
+    .clock-btn {
+      width: 118px;
+      min-width: 118px;
+      padding: 6px 10px;
+      flex: 0 0 118px;
+      flex-direction: column;
+      align-items: flex-end;
+      line-height: 1.05;
+      text-align: right;
+    }
+
+    .clock-btn strong {
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .clock-btn span {
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .taskbar-btn img[src*="terminal.png"],
+    .tray-btn img[src*="volume.png"],
+    .start-btn img[src*="Windows.png"] {
+      filter: none;
+    }
+
+    body[data-theme="dark"] .taskbar-btn img[src*="terminal.png"],
+    body[data-theme="dark"] .tray-btn img[src*="volume.png"],
+    body[data-theme="dark"] .start-btn img[src*="Windows.png"] {
+      filter: brightness(0) invert(1);
+    }
+
+    .assistant-app {
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      min-height: 0;
+      height: 100%;
+      background: var(--surface-strong);
+    }
+
+    .assistant-head {
+      min-height: 40px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 0 10px;
+      font-size: 0.82rem;
+    }
+
+    .assistant-head strong {
+      font-size: 0.84rem;
+      letter-spacing: 0.02em;
+    }
+
+    .assistant-suggest {
+      padding: 8px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .assistant-suggest button {
+      min-height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 10px;
+      font-size: 0.73rem;
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    .assistant-suggest button:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .assistant-log {
+      min-height: 0;
+      overflow: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .assistant-bubble {
+      max-width: 92%;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.83rem;
+      line-height: 1.4;
+      border: 1px solid transparent;
+    }
+
+    .assistant-bubble.user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .assistant-bubble.assistant {
+      align-self: flex-start;
+      background: var(--surface);
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .assistant-bubble.typing {
+      opacity: 0.68;
+      font-style: italic;
+    }
+
+    .assistant-form {
+      padding: 8px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .assistant-form input {
+      min-height: 36px;
+      padding: 0 10px;
+      border-radius: 9px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .assistant-form button {
+      min-width: 72px;
+      border-radius: 9px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      padding: 0 12px;
+    }
+
+    .assistant-form button:hover {
+      background: var(--surface-hover);
+    }
+
+    .assistant-form button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .taskbar-btn.assistant-hidden {
+      display: none;
+    }
+
+    .mobile {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .desktop {
+        display: none;
+      }
+
+      .mobile {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background-image: linear-gradient(180deg, rgba(12, 18, 28, 0.24), rgba(6, 8, 12, 0.68)), var(--wallpaper);
+        background-size: cover;
+        background-position: center;
+      }
+
+      .mobile-card {
+        width: min(420px, 100%);
+        padding: 28px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.84);
+        color: #12151a;
+        text-align: center;
+        box-shadow: var(--shadow);
+      }
+
+      .mobile-card img {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 16px;
+        object-fit: contain;
+      }
+
+      .mobile-card h1 {
+        margin: 0 0 10px;
+        font-size: 1.6rem;
+      }
+
+      .mobile-card p {
+        margin: 0;
+        line-height: 1.55;
+        color: #495362;
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="boot" id="boot">
+    <img src="Assets/Windows.png" alt="Windows logo">
+    <div class="spin" aria-hidden="true"></div>
+    <div>
+      <h1>Loading desktop</h1>
+      <p>Starting wallpaper, taskbar, folders, and explorer windows...</p>
+    </div>
+  </section>
+
+  <section class="shutdown hidden" id="shutdown">
+    <img src="Assets/Windows.png" alt="Windows logo">
+    <div class="spin" aria-hidden="true"></div>
+    <div>
+      <h1>Shutting down</h1>
+      <p id="shutdownText">Closing the portfolio desktop...</p>
+    </div>
+  </section>
+
+  <section class="portfolio-overlay" id="portfolioOverlay" aria-hidden="true">
+    <div class="portfolio-overlay-head">
+      <span class="portfolio-overlay-title">Portfolio.exe</span>
+      <button class="portfolio-overlay-close" id="portfolioOverlayClose" type="button" aria-label="Exit portfolio">&times;</button>
+    </div>
+    <iframe class="portfolio-overlay-frame" id="portfolioOverlayFrame" src="about:blank" title="Portfolio showcase"></iframe>
+  </section>
+
+  <main class="desktop" id="desktop">
+    <div class="wallpaper"></div>
+    <div class="wallpaper-tint"></div>
+
+    <section class="desktop-icons" id="icons"></section>
+    <section class="window-layer" id="windowLayer"></section>
+
+    <section class="start-menu" id="startMenu">
+      <label class="start-search">
+        <span>Search</span>
+        <input id="startSearch" autocomplete="off" spellcheck="false" placeholder="Search apps and folders">
+      </label>
+      <div class="start-head">
+        <strong>Pinned</strong>
+        <span id="startResults">6 items</span>
+      </div>
+      <div class="start-grid" id="startGrid"></div>
+      <div class="start-footer">
+        <button class="start-power" type="button" data-power="shutdown">Shut down</button>
+      </div>
+    </section>
+
+    <section class="clock-flyout" id="clockFlyout">
+      <div class="clock-now">
+        <strong id="flyoutTime">--:--</strong>
+        <span id="flyoutDate">Loading date...</span>
+      </div>
+      <div class="calendar-head">
+        <button class="calendar-nav-btn" id="calendarPrev" type="button" data-calendar-nav="-1" aria-label="Previous month">&lt;</button>
+        <div class="calendar-title-group">
+          <button class="calendar-label" id="calendarMonthBtn" type="button" data-calendar-mode="month">
+            <span id="calendarMonth">Month</span>
+          </button>
+          <button class="calendar-label calendar-year" id="calendarYearBtn" type="button" data-calendar-mode="year">
+            <span id="calendarYear">Year</span>
+          </button>
+        </div>
+        <button class="calendar-nav-btn" id="calendarNext" type="button" data-calendar-nav="1" aria-label="Next month">&gt;</button>
+      </div>
+      <div class="calendar-body">
+        <div class="calendar-weekdays" id="calendarWeekdays">
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+        </div>
+        <div class="calendar-grid days" id="calendarGrid"></div>
+      </div>
+    </section>
+
+    <section class="menu-flyout hidden" id="menuFlyout"></section>
+
+    <footer class="taskbar">
+      <div class="taskbar-center">
+        <button class="taskbar-btn start-btn" id="startBtn" aria-label="Start menu">
+          <img src="Assets/Windows.png" alt="Start">
+        </button>
+        <button class="taskbar-btn" type="button" data-pin="explorer" aria-label="File Explorer">
+          <img src="Assets/Folder.png" alt="Explorer">
+        </button>
+        <button class="taskbar-btn" type="button" data-pin="browser" aria-label="Chrome">
+          <img src="Assets/chrome.png" alt="Chrome">
+        </button>
+        <button class="taskbar-btn" type="button" data-pin="terminal" aria-label="Terminal">
+          <img src="Assets/terminal.png" alt="Terminal">
+        </button>
+        <button class="taskbar-btn" type="button" data-pin="notepad" aria-label="Notepad">
+          <img src="Assets/Notepad.png" alt="Notepad">
+        </button>
+        <button class="taskbar-btn assistant-hidden" type="button" data-pin="assistant" aria-label="Aditya AI">
+          <img src="Assets/chat-bot.png" alt="Aditya AI">
+        </button>
+        <div class="taskbar-running" id="tasks"></div>
+      </div>
+      <div class="taskbar-tray">
+        <button class="tray-btn theme-btn" id="themeToggle" aria-label="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3.5a5.4 5.4 0 0 1 5.4 5.4c0 1.6-.6 2.9-1.6 4.1-.9 1-1.4 2-1.4 3.2v.4H9.6v-.4c0-1.2-.5-2.2-1.4-3.2-1-1.2-1.6-2.5-1.6-4.1A5.4 5.4 0 0 1 12 3.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M9.6 19h4.8M10.4 21h3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <span id="themeText">Dark mode</span>
+        </button>
+        <button class="tray-btn" id="volumeBtn" aria-label="Volume">
+          <img src="Assets/volume.png" alt="Volume">
+        </button>
+        <button class="clock-btn" id="clockBtn" aria-label="Open calendar">
+          <strong id="time">--:--</strong>
+          <span id="date">--/--/----</span>
+        </button>
+      </div>
+    </footer>
+  </main>
+
+  <main class="mobile">
+    <section class="mobile-card">
+      <img src="Assets/Windows.png" alt="Windows logo">
+      <h1>Desktop portfolio</h1>
+      <p>The full Windows-style experience is set up for larger screens, including folders, taskbar, explorer windows, dark mode, and the calendar flyout.</p>
+    </section>
+  </main>
+
+  <script>
+    const ASSETS = {
+      wallpaper: "Assets/wallpaper.jpg",
+      windows: "Assets/Windows.png",
+      folder: "Assets/Folder.png",
+      chrome: "Assets/chrome.png",
+      notepad: "Assets/Notepad.png",
+      photo: "Assets/photo.png",
+      pdf: "Assets/pdf.png",
+      terminal: "Assets/terminal.png",
+      volume: "Assets/volume.png",
+      web: "Assets/web.png",
+      assistant: "Assets/chat-bot.png"
+    };
+
+    const WALLPAPERS = [
+      { id: "bliss", title: "Bliss", path: "Wallpapers/wallpaper.jpg" },
+      { id: "microsoft-windows", title: "Microsoft Windows", path: "Wallpapers/MicrosoftWindows.jpg" },
+      { id: "windows11", title: "Windows 11", path: "Wallpapers/windows11.png" },
+      { id: "windows10", title: "Windows 10", path: "Wallpapers/windows10.jpg" },
+      { id: "windows10-cave", title: "Windows 10 Cave", path: "Wallpapers/windows10-cave.jpg" },
+      { id: "windows-hero-dark", title: "Windows Hero Dark", path: "Wallpapers/windows-10-hero-dark.jpg" },
+      { id: "windows7", title: "Windows 7", path: "Wallpapers/windows7.jpg" }
+    ];
+
+    const HOME = "home://chrome";
+    const ASSISTANT_ENDPOINT = (
+      window.__ASSISTANT_ENDPOINT
+      || (/[.]hf[.]space$/i.test(window.location.hostname)
+        || /vercel[.]app$/i.test(window.location.hostname)
+        || /adityakaushik[.]in$/i.test(window.location.hostname)
+        ? "https://penguindrum920-portfolio-final.hf.space/chat"
+        : "http://localhost:8000/chat")
+    );
+    const FIXED_MODIFIED = "2026-03-20T18:57:00";
+    const RESIZE_DIRS = ["n", "e", "s", "w", "ne", "nw", "se", "sw"];
+
+    const DESKTOP_ITEMS = [
+      { id: "desktop-about", title: "About Me", type: "folder", folderId: "about", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "desktop-portfolio", title: "Projects", type: "folder", folderId: "portfolio", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "desktop-skills", title: "Skills", type: "folder", folderId: "skills", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "desktop-socials", title: "Socials", type: "folder", folderId: "socials", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "desktop-ai", title: "Aditya AI", type: "assistant", icon: "assistant", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" },
+      { id: "desktop-games", title: "Games", type: "games-launcher", icon: "Assets/games.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" }
+    ];
+
+    const SKILLS_ROOT_ITEMS = [
+      { id: "skills-folder-programming-languages", title: "Programming Languages", type: "folder", folderId: "skills-programming-languages", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "skills-folder-machine-learning", title: "Machine Learning", type: "folder", folderId: "skills-machine-learning", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "skills-folder-web-dev", title: "Web Dev", type: "folder", folderId: "skills-web-dev", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "skills-folder-dbms", title: "DBMS", type: "folder", folderId: "skills-dbms", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" },
+      { id: "skills-folder-tools", title: "Tools and Technologies", type: "folder", folderId: "skills-tools-and-technologies", icon: "folder", modified: FIXED_MODIFIED, size: "", typeLabel: "File folder" }
+    ];
+
+    const FOLDERS = {
+      desktop: {
+        id: "desktop",
+        title: "Desktop",
+        items: DESKTOP_ITEMS
+      },
+      about: {
+        id: "about",
+        title: "About Me",
+        items: [
+          { id: "resume-pdf", title: "Resume", type: "pdf", icon: "pdf", path: "About Me/Aditya_Kaushik___1RF23CS008_Resume.pdf", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PDF File" },
+          { id: "adityakaushik", title: "AdityaKaushik", type: "page", icon: "notepad", path: "About Me/About Me.html", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "HTML Document" },
+          { id: "profile-photo", title: "AdityaKaushik.png", type: "image", icon: "photo", path: "About Me/1RF23CS008-Aditya Kaushik.jpeg", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" }
+        ]
+      },
+      portfolio: {
+        id: "portfolio",
+        title: "Projects",
+        items: [
+          { id: "portfolio-exe", title: "Portfolio.exe", type: "portfolio", icon: "terminal", path: "Projects/demo.html", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" }
+        ]
+      },
+      games: {
+        id: "games",
+        title: "Games",
+        items: [
+          { id: "snake-game", title: "Snake", type: "game", icon: "Assets/Snake.png", path: "Games/Snake.html", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" },
+          { id: "minesweeper-game", title: "Minesweeper", type: "game", icon: "Assets/Minesweeper.png", path: "Games/Minesweeper.html", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" }
+        ]
+      },
+      skills: {
+        id: "skills",
+        title: "Skills",
+        items: SKILLS_ROOT_ITEMS
+      },
+      "skills-programming-languages": {
+        id: "skills-programming-languages",
+        title: "Programming Languages",
+        items: [
+          { id: "skill-c", title: "C", type: "image", icon: "Skills/Programming Languages/C.png", path: "Skills/Programming Languages/C.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-cpp", title: "C++", type: "image", icon: "Skills/Programming Languages/c++.png", path: "Skills/Programming Languages/c++.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-python", title: "Python", type: "image", icon: "Skills/Programming Languages/python.png", path: "Skills/Programming Languages/python.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-java", title: "Java", type: "image", icon: "Skills/Programming Languages/java.png", path: "Skills/Programming Languages/java.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-javascript", title: "JavaScript", type: "image", icon: "Skills/Programming Languages/javascript.png", path: "Skills/Programming Languages/javascript.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" }
+        ]
+      },
+      "skills-machine-learning": {
+        id: "skills-machine-learning",
+        title: "Machine Learning",
+        items: [
+          { id: "skill-llm", title: "LLM", type: "image", icon: "Skills/Machine Learning/llm.png", path: "Skills/Machine Learning/llm.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-nlp", title: "NLP", type: "image", icon: "Skills/Machine Learning/nlp.png", path: "Skills/Machine Learning/nlp.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-opencv", title: "OpenCV", type: "image", icon: "Skills/Machine Learning/OpenCV.png", path: "Skills/Machine Learning/OpenCV.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-pytorch", title: "PyTorch", type: "image", icon: "Skills/Machine Learning/PyTorch.png", path: "Skills/Machine Learning/PyTorch.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-rag", title: "RAG", type: "image", icon: "Skills/Machine Learning/rag.png", path: "Skills/Machine Learning/rag.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-scikit-learn", title: "Scikit-learn", type: "image", icon: "Skills/Machine Learning/scikit-learn.png", path: "Skills/Machine Learning/scikit-learn.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-tensorflow", title: "TensorFlow", type: "image", icon: "Skills/Machine Learning/TensorFlow.png", path: "Skills/Machine Learning/TensorFlow.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" }
+        ]
+      },
+      "skills-web-dev": {
+        id: "skills-web-dev",
+        title: "Web Dev",
+        items: [
+          { id: "skill-html", title: "HTML", type: "image", icon: "Skills/Web Dev/HTML.png", path: "Skills/Web Dev/HTML.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-css", title: "CSS", type: "image", icon: "Skills/Web Dev/CSS.png", path: "Skills/Web Dev/CSS.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-express", title: "Express", type: "image", icon: "Skills/Web Dev/Express.png", path: "Skills/Web Dev/Express.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-nodejs", title: "Node.js", type: "image", icon: "Skills/Web Dev/Node.js.png", path: "Skills/Web Dev/Node.js.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-postgresql-web", title: "PostgresSQL", type: "image", icon: "Skills/Web Dev/PostgresSQL.png", path: "Skills/Web Dev/PostgresSQL.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-react", title: "React", type: "image", icon: "Skills/Web Dev/React.png", path: "Skills/Web Dev/React.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-tailwind", title: "Tailwind", type: "image", icon: "Skills/Web Dev/Tailwind CSS.png", path: "Skills/Web Dev/Tailwind CSS.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-threejs", title: "Three.js", type: "image", icon: "Skills/Web Dev/Three.js.png", path: "Skills/Web Dev/Three.js.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" }
+        ]
+      },
+      "skills-dbms": {
+        id: "skills-dbms",
+        title: "DBMS",
+        items: [
+          { id: "skill-sql", title: "SQL", type: "image", icon: "Skills/DBMS/SQL.png", path: "Skills/DBMS/SQL.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-mongodb", title: "MongoDB", type: "image", icon: "Skills/DBMS/MongoDB.png", path: "Skills/DBMS/MongoDB.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-postgresql-dbms", title: "PostgresSQL", type: "image", icon: "Skills/DBMS/PostgresSQL.png", path: "Skills/DBMS/PostgresSQL.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-numpy", title: "NumPy", type: "image", icon: "Skills/DBMS/NumPy.png", path: "Skills/DBMS/NumPy.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-pandas", title: "Pandas", type: "image", icon: "Skills/DBMS/Pandas.png", path: "Skills/DBMS/Pandas.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" }
+        ]
+      },
+      "skills-tools-and-technologies": {
+        id: "skills-tools-and-technologies",
+        title: "Tools and Technologies",
+        items: [
+          { id: "skill-git", title: "Git", type: "image", icon: "Skills/Tools and Technologies/Git.png", path: "Skills/Tools and Technologies/Git.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-github", title: "GitHub", type: "image", icon: "Skills/Tools and Technologies/GitHub.png", path: "Skills/Tools and Technologies/GitHub.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-blender", title: "Blender", type: "image", icon: "Skills/Tools and Technologies/Blender.png", path: "Skills/Tools and Technologies/Blender.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-docker", title: "Docker", type: "image", icon: "Skills/Tools and Technologies/Docker.png", path: "Skills/Tools and Technologies/Docker.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-aws", title: "AWS", type: "image", icon: "Skills/Tools and Technologies/AWS.png", path: "Skills/Tools and Technologies/AWS.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" },
+          { id: "skill-vercel", title: "Vercel", type: "image", icon: "Skills/Tools and Technologies/Vercel.png", path: "Skills/Tools and Technologies/Vercel.png", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "PNG File" }
+        ]
+      },
+      socials: {
+        id: "socials",
+        title: "Socials",
+        items: [
+          { id: "socials-links", title: "Links", type: "page", icon: "notepad", path: "Socials/Links.html", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "HTML Document" },
+          { id: "github-link", title: "GitHub", type: "link", icon: "Socials/GitHub.png", url: "https://github.com/Penguindrum920", modified: FIXED_MODIFIED, size: "Internet", typeLabel: "Website Shortcut" },
+          { id: "linkedin-link", title: "LinkedIn", type: "link", icon: "Socials/LinkedIn.png", url: "https://www.linkedin.com/in/aditya-kaushik-073050298?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app", modified: FIXED_MODIFIED, size: "Internet", typeLabel: "Website Shortcut" },
+          { id: "gmail-primary", title: "Gmail (Primary)", type: "link", icon: "Socials/gmail.png", url: "mailto:adityakaushik920@gmail.com", modified: FIXED_MODIFIED, size: "Internet", typeLabel: "Email Shortcut" },
+          { id: "gmail-secondary", title: "Gmail (College)", type: "link", icon: "Socials/gmail.png", url: "mailto:rvit23bcs071.rvitm@rvei.edu.in", modified: FIXED_MODIFIED, size: "Internet", typeLabel: "Email Shortcut" },
+          { id: "phone-whatsapp", title: "Phone / WhatsApp", type: "link", icon: "Socials/whatsapp.png", url: "https://wa.me/919131354583", modified: FIXED_MODIFIED, size: "Internet", typeLabel: "Contact Shortcut" }
+        ]
+      }
+    };
+
+    const START_ITEMS = [
+      { id: "start-assistant", title: "Aditya AI", icon: "assistant", open: () => openAssistant() },
+      { id: "start-about", title: "About Me", icon: "folder", open: () => openExplorer("about") },
+      { id: "start-portfolio", title: "Projects", icon: "folder", open: () => openExplorer("portfolio") },
+      { id: "start-games", title: "Games", icon: "Assets/games.png", open: () => openGamesLauncher() },
+      { id: "start-skills", title: "Skills", icon: "folder", open: () => openExplorer("skills") },
+      { id: "start-socials", title: "Socials", icon: "folder", open: () => openExplorer("socials") },
+      { id: "start-explorer", title: "File Explorer", icon: "folder", open: () => openExplorer("desktop") },
+      { id: "start-browser", title: "Chrome", icon: "chrome", open: () => openBrowser(HOME) },
+      { id: "start-terminal", title: "Terminal", icon: "terminal", open: () => openTerminal() },
+      { id: "start-notepad", title: "Notepad", icon: "notepad", open: () => openNotepad() }
+    ];
+
+    const state = {
+      z: 20,
+      nextWindowId: 1,
+      windows: [],
+      selection: null,
+      theme: loadTheme(),
+      wallpaper: loadWallpaper(),
+      startOpen: false,
+      clockOpen: false,
+      startSearch: "",
+      desktopView: "large",
+      desktopSort: "name",
+      calendarDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      calendarMode: "days",
+      calendarRangeStart: rangeStartForYear(new Date().getFullYear()),
+      menuEntries: [],
+      terminalLog: [
+        { text: "Portfolio terminal ready.", tone: "muted" },
+        { text: 'Type "help" for commands.', tone: "muted" }
+      ],
+      assistantLoading: false,
+      assistantLog: [
+        { role: "assistant", text: "Aditya AI online. Ask about projects, skills, or tell me what to open." }
+      ],
+      notepadText: [
+        "Welcome to my portfolio!",
+        "",
+        "Hope you enjoy your time around and hopefully I was able to make an impact on you.",
+        "The Chatbot is personalised to answer questions about me, my skills, and my projects, so feel free to ask it anything you'd like to know!",
+        "It is also agentic so you can ask it to open folders, files, websites and such.",
+      ].join("\n")
+    };
+
+    const refs = {
+      boot: document.getElementById("boot"),
+      shutdown: document.getElementById("shutdown"),
+      shutdownText: document.getElementById("shutdownText"),
+      desktop: document.getElementById("desktop"),
+      icons: document.getElementById("icons"),
+      windowLayer: document.getElementById("windowLayer"),
+      startBtn: document.getElementById("startBtn"),
+      startMenu: document.getElementById("startMenu"),
+      startSearch: document.getElementById("startSearch"),
+      startGrid: document.getElementById("startGrid"),
+      startResults: document.getElementById("startResults"),
+      themeToggle: document.getElementById("themeToggle"),
+      themeText: document.getElementById("themeText"),
+      clockBtn: document.getElementById("clockBtn"),
+      time: document.getElementById("time"),
+      date: document.getElementById("date"),
+      flyout: document.getElementById("clockFlyout"),
+      flyoutTime: document.getElementById("flyoutTime"),
+      flyoutDate: document.getElementById("flyoutDate"),
+      calendarPrev: document.getElementById("calendarPrev"),
+      calendarNext: document.getElementById("calendarNext"),
+      calendarMonthBtn: document.getElementById("calendarMonthBtn"),
+      calendarMonth: document.getElementById("calendarMonth"),
+      calendarYearBtn: document.getElementById("calendarYearBtn"),
+      calendarYear: document.getElementById("calendarYear"),
+      calendarWeekdays: document.getElementById("calendarWeekdays"),
+      calendarGrid: document.getElementById("calendarGrid"),
+      menu: document.getElementById("menuFlyout"),
+      tasks: document.getElementById("tasks"),
+      portfolioOverlay: document.getElementById("portfolioOverlay"),
+      portfolioOverlayClose: document.getElementById("portfolioOverlayClose"),
+      portfolioOverlayFrame: document.getElementById("portfolioOverlayFrame")
+    };
+
+    const windowEls = new Map();
+
+    function loadTheme() {
+      try {
+        return localStorage.getItem("portfolio-theme") || "light";
+      } catch (error) {
+        return "light";
+      }
+    }
+
+    function loadWallpaper() {
+      try {
+        return localStorage.getItem("portfolio-wallpaper") || WALLPAPERS[0].path;
+      } catch (error) {
+        return WALLPAPERS[0].path;
+      }
+    }
+
+    function saveTheme(theme) {
+      try {
+        localStorage.setItem("portfolio-theme", theme);
+      } catch (error) {
+        return;
+      }
+    }
+
+    function saveWallpaper(path) {
+      try {
+        localStorage.setItem("portfolio-wallpaper", path);
+      } catch (error) {
+        return;
+      }
+    }
+
+    function esc(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function iconPath(key) {
+      if (typeof key === "string" && (/^[./]|^[A-Za-z]:[\\/]|\//.test(key))) return key;
+      return ASSETS[key] || ASSETS.folder;
+    }
+
+    function iconMarkup(key, label, className = "entry-icon") {
+      return `<img class="${className}" src="${esc(iconPath(key))}" alt="${esc(label)}">`;
+    }
+
+    function windowControlIcon(type, active = false) {
+      if (type === "min") {
+        return '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 9.25h8" stroke-width="1.4" stroke-linecap="square"></path></svg>';
+      }
+
+      if (type === "max" && active) {
+        return '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2.75h5.25V8" stroke-width="1.3"></path><path d="M2.75 4.25H8v5H2.75z" stroke-width="1.3"></path></svg>';
+      }
+
+      if (type === "max") {
+        return '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.75" y="2.75" width="6.5" height="6.5" rx="0.4" stroke-width="1.3"></rect></svg>';
+      }
+
+      return '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9" stroke-width="1.4" stroke-linecap="square"></path></svg>';
+    }
+
+    function windowControlButton(type, active = false) {
+      const className = type === "close" ? "window-control close" : "window-control";
+      const label = type === "min" ? "Minimize" : type === "max" ? (active ? "Restore" : "Maximize") : "Close";
+      return `<button class="${className}" type="button" data-window-act="${type}" aria-label="${label}">${windowControlIcon(type, active)}</button>`;
+    }
+
+    function rangeStartForYear(year) {
+      return year - 7;
+    }
+
+    function calendarMonthName(month, style = "long") {
+      return new Intl.DateTimeFormat(undefined, { month: style }).format(new Date(2026, month, 1));
+    }
+
+    function applyTheme() {
+      document.body.dataset.theme = state.theme;
+      refs.themeText.textContent = state.theme === "light" ? "Dark mode" : "Light mode";
+      refs.themeToggle?.setAttribute("aria-label", state.theme === "light" ? "Switch to dark mode" : "Switch to light mode");
+      document.querySelectorAll("[data-pin]").forEach((button) => {
+        const pin = button.dataset.pin;
+        const active = pin === "explorer" ? state.windows.some((win) => win.kind === "explorer") : state.windows.some((win) => win.kind === pin);
+        button.classList.toggle("active", active);
+      });
+      const assistantPin = document.querySelector('[data-pin="assistant"]');
+      const hasAnyNonAssistant = state.windows.some((win) => win.kind !== "assistant");
+      const hasAssistantWindow = state.windows.some((win) => win.kind === "assistant");
+      assistantPin?.classList.toggle("assistant-hidden", !hasAnyNonAssistant && !hasAssistantWindow);
+    }
+
+    function applyWallpaper() {
+      document.documentElement.style.setProperty("--wallpaper", `url("${state.wallpaper}")`);
+    }
+
+    function isSelected(scope, itemId) {
+      return state.selection && state.selection.scope === scope && state.selection.itemId === itemId;
+    }
+
+    function mobile() {
+      return window.matchMedia("(max-width: 900px)").matches;
+    }
+
+    function formatTaskbarTime(date) {
+      return new Intl.DateTimeFormat(undefined, {
+        hour: "numeric",
+        minute: "2-digit"
+      }).format(date);
+    }
+
+    function formatTaskbarDate(date) {
+      return new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric"
+      }).format(date);
+    }
+
+    function formatLongDate(date) {
+      return new Intl.DateTimeFormat(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      }).format(date);
+    }
+
+    function formatDetailsDate(value) {
+      return new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }).format(new Date(value));
+    }
+
+    function renderDesktopIcons() {
+      const items = sortFolderItems([...DESKTOP_ITEMS], state.desktopSort);
+      refs.icons.className = `desktop-icons view-${state.desktopView}`;
+      refs.icons.innerHTML = items.map((item) => `
+        <button class="desktop-icon ${isSelected("desktop", item.id) ? "selected" : ""}" type="button" data-scope="desktop" data-item-id="${item.id}">
+          ${iconMarkup(item.icon, item.title)}
+          <span>${esc(item.title)}</span>
+        </button>
+      `).join("");
+    }
+
+    function renderStartMenu() {
+      const query = state.startSearch.trim().toLowerCase();
+      const items = START_ITEMS.filter((item) => item.title.toLowerCase().includes(query));
+      refs.startGrid.innerHTML = items.map((item) => `
+        <button class="start-item" type="button" data-start-item="${item.id}">
+          ${iconMarkup(item.icon, item.title)}
+          <span>${esc(item.title)}</span>
+        </button>
+      `).join("");
+      refs.startResults.textContent = `${items.length} item${items.length === 1 ? "" : "s"}`;
+    }
+
+    function toggleStart(open) {
+      state.startOpen = open;
+      refs.startMenu.classList.toggle("open", open);
+      refs.startBtn.classList.toggle("active", open);
+      if (open) {
+        toggleClock(false);
+        hideMenu();
+        setTimeout(() => refs.startSearch.focus(), 20);
+      }
+    }
+
+    function toggleClock(open) {
+      state.clockOpen = open;
+      refs.flyout.classList.toggle("open", open);
+      refs.clockBtn.classList.toggle("active", open);
+      if (open) {
+        toggleStart(false);
+        hideMenu();
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      refs.time.textContent = formatTaskbarTime(now);
+      refs.date.textContent = formatTaskbarDate(now);
+      refs.flyoutTime.textContent = formatTaskbarTime(now);
+      refs.flyoutDate.textContent = formatLongDate(now);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const base = state.calendarDate;
+      const today = new Date();
+      const year = base.getFullYear();
+      const month = base.getMonth();
+      refs.calendarMonth.textContent = calendarMonthName(month, "long");
+      refs.calendarYear.textContent = state.calendarMode === "years" ? `${state.calendarRangeStart} - ${state.calendarRangeStart + 15}` : String(year);
+      refs.calendarMonthBtn.classList.toggle("active", state.calendarMode === "months");
+      refs.calendarYearBtn.classList.toggle("active", state.calendarMode === "years");
+      refs.calendarWeekdays.classList.toggle("hidden", state.calendarMode !== "days");
+      refs.calendarGrid.className = `calendar-grid ${state.calendarMode}`;
+      refs.calendarPrev.setAttribute("aria-label", state.calendarMode === "years" ? "Previous year range" : state.calendarMode === "months" ? "Previous year" : "Previous month");
+      refs.calendarNext.setAttribute("aria-label", state.calendarMode === "years" ? "Next year range" : state.calendarMode === "months" ? "Next year" : "Next month");
+
+      if (state.calendarMode === "months") {
+        refs.calendarGrid.innerHTML = Array.from({ length: 12 }, (_, index) => {
+          const classes = ["calendar-pick"];
+          if (index === month) classes.push("selected");
+          if (year === today.getFullYear() && index === today.getMonth()) classes.push("current");
+          return `<button class="${classes.join(" ")}" type="button" data-calendar-pick-month="${index}">${esc(calendarMonthName(index, "short"))}</button>`;
+        }).join("");
+        return;
+      }
+
+      if (state.calendarMode === "years") {
+        refs.calendarGrid.innerHTML = Array.from({ length: 16 }, (_, index) => {
+          const value = state.calendarRangeStart + index;
+          const classes = ["calendar-pick"];
+          if (value === year) classes.push("selected");
+          if (value === today.getFullYear()) classes.push("current");
+          return `<button class="${classes.join(" ")}" type="button" data-calendar-pick-year="${value}">${value}</button>`;
+        }).join("");
+        return;
+      }
+
+      const first = new Date(year, month, 1);
+      const startOffset = first.getDay();
+      const days = new Date(year, month + 1, 0).getDate();
+      const prevDays = new Date(year, month, 0).getDate();
+      const cells = [];
+
+      for (let index = 0; index < startOffset; index += 1) {
+        cells.push({ day: prevDays - startOffset + index + 1, muted: true });
+      }
+
+      for (let day = 1; day <= days; day += 1) {
+        const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+        cells.push({ day, today: isToday });
+      }
+
+      while (cells.length < 42) {
+        cells.push({ day: cells.length - (startOffset + days) + 1, muted: true });
+      }
+
+      refs.calendarGrid.innerHTML = cells.map((cell) => {
+        const classes = ["calendar-cell"];
+        if (cell.muted) classes.push("muted");
+        if (cell.today) classes.push("today");
+        return `<span class="${classes.join(" ")}">${cell.day}</span>`;
+      }).join("");
+    }
+
+    function getFolder(folderId) {
+      return FOLDERS[folderId] || FOLDERS.desktop;
+    }
+
+    function parentFolderId(folderId) {
+      if (folderId === "desktop") return null;
+      const parent = Object.values(FOLDERS).find((folder) =>
+        folder.items.some((item) => item.type === "folder" && item.folderId === folderId)
+      );
+      return parent ? parent.id : "desktop";
+    }
+
+    function folderPath(folderId) {
+      const path = [];
+      let cursor = folderId;
+      while (cursor) {
+        path.unshift(cursor);
+        cursor = parentFolderId(cursor);
+      }
+      if (!path.length || path[0] !== "desktop") path.unshift("desktop");
+      return path;
+    }
+
+    function folderItems(folderId) {
+      return getFolder(folderId).items.slice();
+    }
+
+    function getDesktopItem(itemId) {
+      return DESKTOP_ITEMS.find((item) => item.id === itemId) || null;
+    }
+
+    function resolveExplorerItem(win, itemId) {
+      return folderItems(win.folderId).find((item) => item.id === itemId) || null;
+    }
+
+    function typeRank(item) {
+      return item.type === "folder" ? 0 : 1;
+    }
+
+    function sortFolderItems(items, sortKey) {
+      return items.slice().sort((left, right) => {
+        const typeDiff = typeRank(left) - typeRank(right);
+        if (typeDiff !== 0) return typeDiff;
+
+        if (sortKey === "type") {
+          const a = left.typeLabel || "";
+          const b = right.typeLabel || "";
+          return a.localeCompare(b) || left.title.localeCompare(right.title);
+        }
+
+        if (sortKey === "date") {
+          const diff = new Date(right.modified || FIXED_MODIFIED) - new Date(left.modified || FIXED_MODIFIED);
+          return diff || left.title.localeCompare(right.title);
+        }
+
+        return left.title.localeCompare(right.title);
+      });
+    }
+
+    function currentTaskbarBottom() {
+      return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--taskbar-height"), 10) + 4;
+    }
+
+    function defaultRect(kind, centered = false) {
+      const presets = {
+        explorer: [980, 690],
+        browser: [1080, 720],
+        assistant: [420, 560],
+        game: [1140, 760],
+        "games-launcher": [900, 620],
+        terminal: [920, 560],
+        notepad: [860, 600],
+        viewer: [1080, 720],
+        properties: [440, 330],
+        personalize: [760, 520]
+      };
+      const count = state.windows.length;
+      const preset = presets[kind] || presets.explorer;
+      const w = Math.min(preset[0], Math.max(380, window.innerWidth - 60));
+      const h = Math.min(preset[1], Math.max(280, window.innerHeight - currentTaskbarBottom() - 24));
+      const x = centered ? Math.max(18, Math.round((window.innerWidth - w) / 2)) : Math.max(18, Math.min(120 + count * 26, window.innerWidth - w - 18));
+      const y = centered ? Math.max(18, Math.round((window.innerHeight - currentTaskbarBottom() - h) / 2)) : Math.max(18, Math.min(74 + count * 22, window.innerHeight - currentTaskbarBottom() - h));
+      return { x, y, w, h };
+    }
+
+    function maximizedRect() {
+      const gap = 8;
+      const bottom = currentTaskbarBottom();
+      return {
+        x: gap,
+        y: gap,
+        w: Math.max(420, window.innerWidth - gap * 2),
+        h: Math.max(320, window.innerHeight - bottom - gap)
+      };
+    }
+
+    function frameFor(win) {
+      if (win.maximized) return maximizedRect();
+      return { x: win.x, y: win.y, w: win.w, h: win.h };
+    }
+
+    function topWindowId() {
+      const openWindows = state.windows.filter((win) => !win.minimized);
+      if (!openWindows.length) return "";
+      return openWindows.sort((a, b) => b.z - a.z)[0].id;
+    }
+
+    function renderTasks() {
+      const topId = topWindowId();
+      refs.tasks.innerHTML = state.windows.map((win) => `
+        <button class="task-btn ${topId === win.id && !win.minimized ? "active" : ""}" type="button" data-task-window="${win.id}">
+          ${iconMarkup(win.icon, win.title, "title-icon")}
+          <span>${esc(win.title)}</span>
+        </button>
+      `).join("");
+      applyTheme();
+    }
+
+    function windowById(id) {
+      return state.windows.find((win) => win.id === id) || null;
+    }
+
+    function syncWindowHeader(win) {
+      const el = windowEls.get(win.id);
+      if (!el) return;
+      const iconHost = el.querySelector("[data-title-icon]");
+      const titleHost = el.querySelector("[data-title-text]");
+      const maxBtn = el.querySelector('[data-window-act="max"]');
+      if (iconHost) iconHost.innerHTML = iconMarkup(win.icon, win.title, "title-icon");
+      if (titleHost) titleHost.textContent = win.title;
+      if (maxBtn) {
+        maxBtn.innerHTML = windowControlIcon("max", win.maximized);
+        maxBtn.setAttribute("aria-label", win.maximized ? "Restore" : "Maximize");
+      }
+    }
+
+    function applyWindow(win) {
+      const el = windowEls.get(win.id);
+      if (!el) return;
+      const rect = frameFor(win);
+      el.style.left = `${rect.x}px`;
+      el.style.top = `${rect.y}px`;
+      el.style.width = `${rect.w}px`;
+      el.style.height = `${rect.h}px`;
+      el.style.zIndex = String(win.z);
+      el.classList.toggle("minimized", win.minimized);
+      el.classList.toggle("maximized", win.maximized);
+      el.classList.toggle("fixed-size", win.resizable === false);
+      el.classList.toggle("no-drag", win.kind === "properties");
+      syncWindowHeader(win);
+    }
+
+    function focusWindow(id) {
+      const win = windowById(id);
+      if (!win) return;
+      win.minimized = false;
+      win.z = ++state.z;
+      state.windows.forEach(applyWindow);
+      renderTasks();
+    }
+
+    function createWindow(spec) {
+      const id = `win-${state.nextWindowId++}`;
+      const rect = spec.rect || defaultRect(spec.kind, spec.kind === "properties");
+      const win = {
+        id,
+        kind: spec.kind,
+        title: spec.title,
+        icon: spec.icon,
+        x: rect.x,
+        y: rect.y,
+        w: rect.w,
+        h: rect.h,
+        minW: spec.minW || 360,
+        minH: spec.minH || 260,
+        minimized: false,
+        maximized: spec.maximized !== false && spec.kind !== "properties",
+        restore: rect,
+        z: ++state.z,
+        resizable: spec.resizable !== false,
+        controls: spec.controls || { min: true, max: true, close: true },
+        folderId: spec.folderId || "",
+        history: spec.history || [],
+        historyIndex: spec.historyIndex || 0,
+        sort: spec.sort || "name",
+        view: spec.view || "medium",
+        search: spec.search || "",
+        browserHistory: spec.browserHistory || [HOME],
+        browserIndex: spec.browserIndex || 0,
+        item: spec.item || null
+      };
+      state.windows.push(win);
+      mountWindow(win);
+      focusWindow(win.id);
+      return win;
+    }
+
+    function mountWindow(win) {
+      const el = document.createElement("section");
+      el.className = "window";
+      el.dataset.windowId = win.id;
+      el.innerHTML = `
+        <header class="titlebar">
+          <div class="title">
+            <span data-title-icon></span>
+            <span class="title-text" data-title-text></span>
+          </div>
+          <div class="window-controls">
+            ${win.controls.min ? windowControlButton("min") : ""}
+            ${win.controls.max ? windowControlButton("max", win.maximized) : ""}
+            ${win.controls.close ? windowControlButton("close") : ""}
+          </div>
+        </header>
+        <div class="window-body"></div>
+        <div class="window-grip" aria-hidden="true"></div>
+        ${RESIZE_DIRS.map((dir) => `<div class="resize-handle" data-dir="${dir}"></div>`).join("")}
+      `;
+      refs.windowLayer.appendChild(el);
+      windowEls.set(win.id, el);
+      bindWindowFrame(el, win.id);
+      renderWindowBody(win);
+      applyWindow(win);
+      renderTasks();
+    }
+
+    function removeWindow(id) {
+      const index = state.windows.findIndex((win) => win.id === id);
+      if (index === -1) return;
+      windowEls.get(id)?.remove();
+      windowEls.delete(id);
+      state.windows.splice(index, 1);
+      renderTasks();
+      applyTheme();
+    }
+
+    function renderWindowBody(win) {
+      const el = windowEls.get(win.id);
+      if (!el) return;
+      const host = el.querySelector(".window-body");
+      if (!host) return;
+
+      if (win.kind === "explorer") {
+        host.innerHTML = renderExplorer(win);
+      } else if (win.kind === "browser") {
+        host.innerHTML = renderBrowser(win);
+      } else if (win.kind === "terminal") {
+        host.innerHTML = renderTerminal();
+      } else if (win.kind === "notepad") {
+        host.innerHTML = renderNotepad();
+      } else if (win.kind === "viewer") {
+        host.innerHTML = renderViewer(win.item);
+      } else if (win.kind === "assistant") {
+        host.innerHTML = renderAssistantWindow(win);
+      } else if (win.kind === "game") {
+        host.innerHTML = renderGameApp(win.item);
+      } else if (win.kind === "games-launcher") {
+        host.innerHTML = renderGamesLauncher();
+      } else if (win.kind === "properties") {
+        host.innerHTML = renderProperties(win.item);
+      } else if (win.kind === "personalize") {
+        host.innerHTML = renderPersonalize();
+      }
+
+      if (win.kind === "terminal") {
+        const log = host.querySelector("[data-terminal-log]");
+        if (log) log.scrollTop = log.scrollHeight;
+      }
+
+      if (win.kind === "assistant") {
+        const log = host.querySelector("[data-assistant-log]");
+        if (log) log.scrollTop = log.scrollHeight;
+      }
+    }
+    function renderExplorer(win) {
+      const folder = getFolder(win.folderId);
+      const items = sortFolderItems(
+        folderItems(win.folderId).filter((item) => item.title.toLowerCase().includes(win.search.trim().toLowerCase())),
+        win.sort
+      );
+      const canGoBack = win.historyIndex > 0;
+      const canGoForward = win.historyIndex < win.history.length - 1;
+      const canGoUp = win.folderId !== "desktop";
+      const sidebar = ["desktop", "about", "portfolio", "games", "skills", "socials"];
+      const crumbs = folderPath(win.folderId);
+
+      return `
+        <section class="explorer">
+          <div class="explorer-toolbar">
+            <div class="toolbar-group">
+              <button class="nav-button" type="button" data-explorer-nav="back" data-win-id="${win.id}" ${canGoBack ? "" : "disabled"}>&larr;</button>
+              <button class="nav-button" type="button" data-explorer-nav="forward" data-win-id="${win.id}" ${canGoForward ? "" : "disabled"}>&rarr;</button>
+              <button class="nav-button" type="button" data-explorer-nav="home" data-win-id="${win.id}">&#8962;</button>
+              <button class="nav-button" type="button" data-explorer-nav="up" data-win-id="${win.id}" ${canGoUp ? "" : "disabled"}>&uarr;</button>
+            </div>
+            <div class="address-bar">
+              <div class="crumb">
+                ${crumbs.map((part, index) => `
+                  <button type="button" data-folder-nav="${part}" data-win-id="${win.id}">${esc(getFolder(part).title)}</button>
+                  ${index < crumbs.length - 1 ? '<span class="crumb-sep">&gt;</span>' : ""}
+                `).join("")}
+              </div>
+            </div>
+            <div class="toolbar-spacer"></div>
+            <label class="search-box">
+              <input type="text" value="${esc(win.search)}" placeholder="Search ${esc(folder.title)}" data-search-win="${win.id}">
+            </label>
+            <button class="toolbar-button" type="button" data-sort-btn="${win.id}">Sort</button>
+            <button class="toolbar-button" type="button" data-view-btn="${win.id}">View</button>
+          </div>
+          <div class="explorer-shell">
+            <aside class="sidebar">
+              <div class="sidebar-label">Navigation</div>
+              ${sidebar.map((id) => `
+                <button class="sidebar-item ${win.folderId === id ? "active" : ""}" type="button" data-folder-nav="${id}" data-win-id="${win.id}">
+                  ${iconMarkup("folder", getFolder(id).title, "title-icon")}
+                  <span>${esc(getFolder(id).title)}</span>
+                </button>
+              `).join("")}
+            </aside>
+            <div class="folder-pane">
+              ${items.length ? (win.view === "details" ? renderDetailsView(win, items) : renderIconView(win, items)) : `
+                <div class="empty-folder">
+                  <p>This folder is empty.</p>
+                </div>
+              `}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderIconView(win, items) {
+      const viewClass = win.view === "large" ? "large" : "medium";
+      return `
+        <div class="entry-grid ${viewClass}">
+          ${items.map((item) => `
+            <button class="entry ${viewClass === "large" ? "large" : ""} ${isSelected(win.id, item.id) ? "selected" : ""}" type="button" data-entry-id="${item.id}" data-win-id="${win.id}">
+              ${iconMarkup(item.icon, item.title)}
+              <span class="entry-label">${esc(item.title)}</span>
+            </button>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderDetailsView(win, items) {
+      return `
+        <div class="details-view">
+          <div class="details-head">
+            <span>Name</span>
+            <span>Date modified</span>
+            <span>Type</span>
+            <span>Size</span>
+          </div>
+          ${items.map((item) => `
+            <button class="details-row ${isSelected(win.id, item.id) ? "selected" : ""}" type="button" data-entry-id="${item.id}" data-win-id="${win.id}">
+              <span class="details-name">
+                ${iconMarkup(item.icon, item.title, "title-icon")}
+                <span>${esc(item.title)}</span>
+              </span>
+              <span>${esc(formatDetailsDate(item.modified || FIXED_MODIFIED))}</span>
+              <span>${esc(item.typeLabel || "")}</span>
+              <span>${esc(item.size || "")}</span>
+            </button>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function browserCurrent(win) {
+      return win.browserHistory[win.browserIndex] || HOME;
+    }
+
+    function renderBrowser(win) {
+      const current = browserCurrent(win);
+      if (current === HOME) {
+        return `
+          <section class="browser">
+            <form class="browser-toolbar" data-browser-form="${win.id}">
+              <button class="nav-button" type="button" data-browser-nav="back" data-win-id="${win.id}" ${win.browserIndex > 0 ? "" : "disabled"}>&larr;</button>
+              <button class="nav-button" type="button" data-browser-nav="forward" data-win-id="${win.id}" ${win.browserIndex < win.browserHistory.length - 1 ? "" : "disabled"}>&rarr;</button>
+              <button class="nav-button" type="button" data-browser-nav="home" data-win-id="${win.id}">&#8962;</button>
+              <label class="browser-address">
+                <input type="text" value="" placeholder="Search Google or type a URL" data-browser-input="${win.id}">
+              </label>
+              <button class="toolbar-button" type="submit">Go</button>
+            </form>
+            <div class="browser-panel">
+              <div class="browser-home">
+                <img src="${esc(ASSETS.chrome)}" alt="Chrome">
+                <h2>Chrome</h2>
+                <p>Use the address bar to open a URL or search the web. Social shortcuts open their pages directly from the Socials folder.</p>
+                <form class="browser-home-search" data-browser-home-form="${win.id}">
+                  <input type="text" placeholder="Search Google or type a URL" data-browser-home-input="${win.id}">
+                  <button class="toolbar-button" type="submit">Search</button>
+                </form>
+                <div class="browser-quick">
+                  <button type="button" data-browser-quick="github.com">github.com</button>
+                  <button type="button" data-browser-quick="linkedin.com">linkedin.com</button>
+                  <button type="button" data-browser-quick="portfolio inspiration">portfolio inspiration</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      return `
+        <section class="browser">
+          <form class="browser-toolbar" data-browser-form="${win.id}">
+            <button class="nav-button" type="button" data-browser-nav="back" data-win-id="${win.id}" ${win.browserIndex > 0 ? "" : "disabled"}>&larr;</button>
+            <button class="nav-button" type="button" data-browser-nav="forward" data-win-id="${win.id}" ${win.browserIndex < win.browserHistory.length - 1 ? "" : "disabled"}>&rarr;</button>
+            <button class="nav-button" type="button" data-browser-nav="home" data-win-id="${win.id}">&#8962;</button>
+            <label class="browser-address">
+              <input type="text" value="${esc(current)}" placeholder="Search Google or type a URL" data-browser-input="${win.id}">
+            </label>
+            <button class="toolbar-button" type="submit">Go</button>
+          </form>
+          <div class="browser-panel">
+            <div class="browser-note">Some sites block embedded previews. If a page does not load here, use the Socials shortcuts or open the address in a new tab.</div>
+            <div class="browser-frame">
+              <iframe src="${esc(current)}" title="Browser preview"></iframe>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderTerminal() {
+      return `
+        <section class="terminal">
+          <div class="terminal-head">
+            <span>Windows Terminal</span>
+            <span>Supported commands: help, open about, open portfolio, open games, open socials, open adityaai, theme dark, theme light, clear, time, date, shutdown</span>
+          </div>
+          <div class="terminal-log" data-terminal-log>
+            ${state.terminalLog.map((line) => `<div class="terminal-line ${line.tone || ""}">${esc(line.text)}</div>`).join("")}
+          </div>
+          <form class="terminal-form" data-terminal-form="true">
+            <span>C:\\Portfolio&gt;</span>
+            <input autocomplete="off" spellcheck="false" placeholder='Try "help" or "open about"' data-terminal-input="true">
+          </form>
+        </section>
+      `;
+    }
+
+    function renderNotepad() {
+      return `
+        <section class="notepad">
+          <div class="notepad-head">Untitled - Notepad</div>
+          <div class="notepad-menu">
+            <button type="button">File</button>
+            <button type="button">Edit</button>
+            <button type="button">Format</button>
+            <button type="button">View</button>
+            <button type="button">Help</button>
+          </div>
+          <textarea data-notepad-input="true" spellcheck="false">${esc(state.notepadText)}</textarea>
+          <div class="notepad-status">
+            <span>Ln 1, Col 1</span>
+            <span>UTF-8</span>
+            <span>Windows (CRLF)</span>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderViewer(item) {
+      if (item.type === "pdf") {
+        return `
+          <section class="viewer">
+            <div class="viewer-card">
+              <object data="${esc(item.path)}" type="application/pdf">
+                ${renderFallbackCard(item, "Drop the file into the Assets folder using this exact name, then click it again.")}
+              </object>
+            </div>
+          </section>
+        `;
+      }
+
+      if (item.type === "image") {
+        return `
+          <section class="viewer">
+            <div class="viewer-card">
+              <img class="viewer-image" src="${esc(item.path)}" alt="${esc(item.title)}" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+              <div class="viewer-fallback hidden">
+                <img src="${esc(ASSETS.folder)}" alt="Image placeholder">
+                <h3>${esc(item.title)}</h3>
+                <p>Add the image to <code>${esc(item.path)}</code> and it will open here.</p>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      return `
+        <section class="viewer">
+          <div class="viewer-card">
+            ${renderFallbackCard(item, "This item is ready, but it still needs a real file.")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderGameApp(item) {
+      return `
+        <section class="game-app">
+          <div class="game-app-shell">
+            <iframe src="${esc(item.path)}" title="${esc(item.title)}"></iframe>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderGamesLauncher() {
+      const games = FOLDERS.games.items.filter((entry) => entry.type === "game");
+      return `
+        <section class="games-launcher">
+          <div class="games-launcher-head">
+            <h2>Games Launcher</h2>
+            <p>Choose a game to open in its own full app window.</p>
+          </div>
+          <div class="games-launcher-grid">
+            ${games.map((game) => `
+              <button class="game-card" type="button" data-launch-game="${esc(game.id)}">
+                <img src="${esc(iconPath(game.icon))}" alt="${esc(game.title)}">
+                <div>
+                  <strong>${esc(game.title)}</strong>
+                  <span>Open now</span>
+                </div>
+              </button>
+            `).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderAssistantWindow(win) {
+      return `
+        <section class="assistant-app">
+          <div class="assistant-head">
+            <strong>Aditya AI</strong>
+          </div>
+          <div class="assistant-suggest">
+            <button type="button" data-assistant-suggest="about" data-assistant-win="${win.id}">about</button>
+            <button type="button" data-assistant-suggest="projects" data-assistant-win="${win.id}">projects</button>
+            <button type="button" data-assistant-suggest="skills" data-assistant-win="${win.id}">skills</button>
+            <button type="button" data-assistant-suggest="contact" data-assistant-win="${win.id}">contact</button>
+            <button type="button" data-assistant-suggest="play minesweeper" data-assistant-win="${win.id}">play minesweeper</button>
+          </div>
+          <div class="assistant-log" data-assistant-log>
+            ${state.assistantLog.map((entry) => `<div class="assistant-bubble ${esc(entry.role)}${entry.typing ? " typing" : ""}">${esc(entry.text)}</div>`).join("")}
+          </div>
+          <form class="assistant-form" data-assistant-form="${win.id}">
+            <input data-assistant-input="${win.id}" autocomplete="off" spellcheck="false" placeholder="Ask or command..." ${state.assistantLoading ? "disabled" : ""}>
+            <button type="submit" ${state.assistantLoading ? "disabled" : ""}>Send</button>
+          </form>
+        </section>
+      `;
+    }
+
+    function renderFallbackCard(item, message) {
+      return `
+        <div class="viewer-fallback">
+          <img src="${esc(iconPath(item.icon || "folder"))}" alt="${esc(item.title)}">
+          <h3>${esc(item.title)}</h3>
+          <p>${esc(message)}</p>
+        </div>
+      `;
+    }
+
+    function renderProperties(item) {
+      return `
+        <section class="properties">
+          <div class="properties-top">
+            <img src="${esc(iconPath(item.icon || "folder"))}" alt="${esc(item.title)}">
+            <div>
+              <strong>${esc(item.title)}</strong>
+              <span>${esc(item.typeLabel || "Item")}</span>
+            </div>
+          </div>
+          <div class="properties-grid">
+            <div class="property-row">
+              <span>Name</span>
+              <span>${esc(item.title)}</span>
+            </div>
+            <div class="property-row">
+              <span>Type</span>
+              <span>${esc(item.typeLabel || "")}</span>
+            </div>
+            <div class="property-row">
+              <span>Location</span>
+              <span>${esc(item.location || "Desktop")}</span>
+            </div>
+            <div class="property-row">
+              <span>Modified</span>
+              <span>${esc(formatDetailsDate(item.modified || FIXED_MODIFIED))}</span>
+            </div>
+            <div class="property-row">
+              <span>Target</span>
+              <span>${esc(item.url || item.path || item.title)}</span>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderPersonalize() {
+      return `
+        <section class="personalize">
+          <div>
+            <strong>Choose a wallpaper</strong>
+          </div>
+          <div class="personalize-copy">The desktop background updates immediately and your choice is remembered for the next visit.</div>
+          <div class="wallpaper-grid">
+            ${WALLPAPERS.map((wallpaper) => `
+              <button class="wallpaper-card ${state.wallpaper === wallpaper.path ? "active" : ""}" type="button" data-wallpaper-pick="${wallpaper.path}">
+                <img src="${esc(wallpaper.path)}" alt="${esc(wallpaper.title)}">
+                <strong>${esc(wallpaper.title)}</strong>
+              </button>
+            `).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function showMenu(entries, x, y) {
+      state.menuEntries = entries;
+      refs.menu.innerHTML = entries.map((entry, index) => {
+        if (entry.separator) return "<hr>";
+        return `
+          <button class="${entry.active ? "active" : ""}" type="button" data-menu-index="${index}">
+            <span>${esc(entry.label)}</span>
+            <span>${entry.shortcut ? esc(entry.shortcut) : ""}</span>
+          </button>
+        `;
+      }).join("");
+      refs.menu.classList.remove("hidden");
+
+      requestAnimationFrame(() => {
+        const bounds = refs.menu.getBoundingClientRect();
+        const left = Math.min(x, window.innerWidth - bounds.width - 8);
+        const top = Math.min(y, window.innerHeight - currentTaskbarBottom() - bounds.height - 8);
+        refs.menu.style.left = `${Math.max(8, left)}px`;
+        refs.menu.style.top = `${Math.max(8, top)}px`;
+      });
+    }
+
+    function hideMenu() {
+      refs.menu.classList.add("hidden");
+      refs.menu.style.left = "";
+      refs.menu.style.top = "";
+      state.menuEntries = [];
+    }
+
+    function selectItem(scope, itemId) {
+      state.selection = { scope, itemId };
+      renderDesktopIcons();
+      state.windows.filter((win) => win.kind === "explorer").forEach(renderWindowBody);
+    }
+
+    function clearSelection() {
+      if (!state.selection) return;
+      state.selection = null;
+      renderDesktopIcons();
+      state.windows.filter((win) => win.kind === "explorer").forEach(renderWindowBody);
+    }
+
+    function findExplorer(folderId) {
+      return state.windows.find((win) => win.kind === "explorer" && win.folderId === folderId) || null;
+    }
+
+    function openExplorer(folderId, options = {}) {
+      const existing = !options.newWindow && findExplorer(folderId);
+      if (existing) {
+        focusWindow(existing.id);
+        return existing;
+      }
+
+      const folder = getFolder(folderId);
+      return createWindow({
+        kind: "explorer",
+        title: folder.title,
+        icon: "folder",
+        folderId,
+        history: [folderId],
+        historyIndex: 0,
+        sort: "name",
+        view: "medium",
+        search: "",
+        minW: 620,
+        minH: 420
+      });
+    }
+
+    function openBrowser(target = HOME) {
+      let win = state.windows.find((item) => item.kind === "browser");
+      if (!win) {
+        win = createWindow({
+          kind: "browser",
+          title: "Chrome",
+          icon: "chrome",
+          browserHistory: [HOME],
+          browserIndex: 0,
+          minW: 700,
+          minH: 420
+        });
+      }
+      focusWindow(win.id);
+      goBrowser(win.id, target);
+      return win;
+    }
+
+    function openTerminal() {
+      let win = state.windows.find((item) => item.kind === "terminal");
+      if (!win) {
+        win = createWindow({
+          kind: "terminal",
+          title: "Terminal",
+          icon: "terminal",
+          minW: 620,
+          minH: 360
+        });
+      }
+      focusWindow(win.id);
+      renderWindowBody(win);
+      return win;
+    }
+
+    function openNotepad() {
+      let win = state.windows.find((item) => item.kind === "notepad");
+      if (!win) {
+        win = createWindow({
+          kind: "notepad",
+          title: "Notes.txt",
+          icon: "notepad",
+          minW: 620,
+          minH: 420
+        });
+      }
+      focusWindow(win.id);
+      renderWindowBody(win);
+      return win;
+    }
+
+    function openAssistant() {
+      let win = state.windows.find((item) => item.kind === "assistant");
+      const rightRect = defaultRect("assistant");
+      rightRect.x = Math.max(8, window.innerWidth - rightRect.w - 12);
+      rightRect.y = Math.max(12, Math.min(84, window.innerHeight - currentTaskbarBottom() - rightRect.h));
+
+      if (!win) {
+        win = createWindow({
+          kind: "assistant",
+          title: "Aditya AI",
+          icon: "assistant",
+          rect: rightRect,
+          minW: 340,
+          minH: 300,
+          maximized: false
+        });
+      } else {
+        win.x = rightRect.x;
+        win.y = rightRect.y;
+        win.w = Math.max(win.minW, Math.min(win.w, window.innerWidth - 20));
+        win.h = Math.max(win.minH, Math.min(win.h, window.innerHeight - currentTaskbarBottom() - 8));
+        win.restore = { x: win.x, y: win.y, w: win.w, h: win.h };
+      }
+      focusWindow(win.id);
+      renderWindowBody(win);
+      applyWindow(win);
+      return win;
+    }
+
+    function openPortfolioOverlay(path = "Projects/demo.html") {
+      refs.portfolioOverlayFrame.src = path;
+      refs.portfolioOverlay.classList.add("open");
+      refs.portfolioOverlay.setAttribute("aria-hidden", "false");
+      toggleStart(false);
+      toggleClock(false);
+      hideMenu();
+    }
+
+    function closePortfolioOverlay() {
+      if (!refs.portfolioOverlay.classList.contains("open")) return;
+      refs.portfolioOverlay.classList.remove("open");
+      refs.portfolioOverlay.setAttribute("aria-hidden", "true");
+      refs.portfolioOverlayFrame.src = "about:blank";
+    }
+
+    function renderAssistantLog() {
+      state.windows
+        .filter((win) => win.kind === "assistant")
+        .forEach((win) => {
+          renderWindowBody(win);
+          applyWindow(win);
+        });
+    }
+
+    function pushAssistantMessage(role, text, typing = false) {
+      state.assistantLog.push({ role, text, typing });
+      renderAssistantLog();
+    }
+
+    function openTargetFromAssistant(target) {
+      if (!target) return;
+      if (target === "about") {
+        openExplorer("about");
+        return;
+      }
+      if (target === "projects" || target === "portfolio") {
+        openExplorer("portfolio");
+        return;
+      }
+      if (target === "skills") {
+        openExplorer("skills");
+        return;
+      }
+      if (target === "contact" || target === "socials") {
+        openExplorer("socials");
+        return;
+      }
+      if (target === "games") {
+        openGamesLauncher();
+        return;
+      }
+      if (target === "snake") {
+        const item = FOLDERS.games.items.find((game) => game.id === "snake-game");
+        if (item) openGameWindow(item);
+        return;
+      }
+      if (target === "minesweeper") {
+        const item = FOLDERS.games.items.find((game) => game.id === "minesweeper-game");
+        if (item) openGameWindow(item);
+        return;
+      }
+      if (target === "resume") {
+        const resume = FOLDERS.about.items.find((item) => item.id === "resume-pdf");
+        if (resume) openViewer(resume);
+        return;
+      }
+      if (target === "assistant") {
+        openAssistant();
+      }
+    }
+
+    async function sendAssistantMessage(raw) {
+      const message = String(raw || "").trim();
+      if (!message || state.assistantLoading) return;
+      state.assistantLoading = true;
+      pushAssistantMessage("user", message);
+      pushAssistantMessage("assistant", "Thinking...", true);
+      renderAssistantLog();
+
+      try {
+        const response = await fetch(ASSISTANT_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        state.assistantLog = state.assistantLog.filter((entry) => !entry.typing);
+        pushAssistantMessage("assistant", data.message || "I don't have that information yet.");
+        if (data.action === "OPEN_WINDOW") {
+          openTargetFromAssistant(String(data.target || "").toLowerCase());
+        }
+      } catch (error) {
+        state.assistantLog = state.assistantLog.filter((entry) => !entry.typing);
+        pushAssistantMessage("assistant", "Assistant backend is offline. Start backend on port 8000.");
+      } finally {
+        state.assistantLoading = false;
+        renderAssistantLog();
+      }
+    }
+
+    function openViewer(item) {
+      return createWindow({
+        kind: "viewer",
+        title: item.title,
+        icon: item.icon || "folder",
+        item,
+        minW: 720,
+        minH: 500
+      });
+    }
+
+    function openGameWindow(item) {
+      const existing = state.windows.find((win) => win.kind === "game" && win.item && win.item.path === item.path);
+      if (existing) {
+        focusWindow(existing.id);
+        return existing;
+      }
+
+      return createWindow({
+        kind: "game",
+        title: item.title,
+        icon: item.icon || "Assets/games.png",
+        item,
+        minW: 760,
+        minH: 520
+      });
+    }
+
+    function openGamesLauncher() {
+      const existing = state.windows.find((win) => win.kind === "games-launcher");
+      if (existing) {
+        focusWindow(existing.id);
+        renderWindowBody(existing);
+        return existing;
+      }
+
+      return createWindow({
+        kind: "games-launcher",
+        title: "Games Launcher",
+        icon: "Assets/games.png",
+        minW: 700,
+        minH: 460
+      });
+    }
+
+    function openProperties(item) {
+      return createWindow({
+        kind: "properties",
+        title: `${item.title} Properties`,
+        icon: item.icon || "folder",
+        item,
+        resizable: false,
+        maximized: false,
+        controls: { min: false, max: false, close: true },
+        rect: defaultRect("properties", true),
+        minW: 420,
+        minH: 320
+      });
+    }
+
+    function openPersonalize() {
+      const existing = state.windows.find((win) => win.kind === "personalize");
+      if (existing) {
+        focusWindow(existing.id);
+        renderWindowBody(existing);
+        return existing;
+      }
+
+      return createWindow({
+        kind: "personalize",
+        title: "Personalization",
+        icon: "windows",
+        minW: 620,
+        minH: 420
+      });
+    }
+
+    function withLocation(item, location) {
+      return { ...item, location };
+    }
+
+    function openItem(item, context = {}) {
+      if (!item) return;
+      if (item.type === "folder") {
+        if (context.winId) {
+          navigateExplorer(context.winId, item.folderId, true);
+        } else {
+          openExplorer(item.folderId, { newWindow: !!context.newWindow });
+        }
+        return;
+      }
+
+      if (item.type === "link") {
+        if (context.browserWindow) {
+          openBrowser(item.url);
+        } else {
+          window.open(item.url, "_blank", "noopener,noreferrer");
+        }
+        return;
+      }
+
+      if (item.type === "page") {
+        openBrowser(item.path);
+        return;
+      }
+
+      if (item.type === "game") {
+        openGameWindow(item);
+        return;
+      }
+
+      if (item.type === "games-launcher") {
+        openGamesLauncher();
+        return;
+      }
+
+      if (item.type === "assistant") {
+        openAssistant();
+        return;
+      }
+
+      if (item.type === "portfolio") {
+        openPortfolioOverlay(item.path);
+        return;
+      }
+
+      openViewer(item);
+    }
+
+    function slug(value) {
+      return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "item";
+    }
+
+    function stripFileExtension(fileName) {
+      return fileName.replace(/\.[^.]+$/, "");
+    }
+
+    function prettySkillName(fileName) {
+      return stripFileExtension(fileName)
+        .replace(/[_-]+/g, " ")
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function refreshSkillsViews() {
+      state.windows
+        .filter((win) => win.kind === "explorer" && win.folderId === "skills")
+        .forEach((win) => {
+          renderWindowBody(win);
+          applyWindow(win);
+        });
+    }
+
+    function normalizeSkillEntries(entries) {
+      return entries
+        .map((entry, index) => {
+          const imagePath = (entry.path || entry.icon || "").trim();
+          if (!imagePath) return null;
+          const rawName = (entry.name || entry.title || prettySkillName(imagePath.split("/").pop() || `skill-${index + 1}`)).trim();
+          if (!rawName) return null;
+          return {
+            id: `skill-${slug(rawName)}-${index + 1}`,
+            title: rawName,
+            type: "image",
+            icon: imagePath,
+            path: imagePath,
+            modified: FIXED_MODIFIED,
+            size: "Pending",
+            typeLabel: "Skill Icon"
+          };
+        })
+        .filter(Boolean);
+    }
+
+    async function loadSkillsFromFolder() {
+      const imageExtension = /\.(png|jpe?g|gif|webp|svg)$/i;
+
+      try {
+        const manifestResponse = await fetch("Skills/skills.json", { cache: "no-store" });
+        if (manifestResponse.ok) {
+          const manifest = await manifestResponse.json();
+          const list = Array.isArray(manifest) ? manifest : (Array.isArray(manifest.skills) ? manifest.skills : []);
+          const normalized = normalizeSkillEntries(list);
+          if (normalized.length > 0) {
+            FOLDERS.skills.items = normalized;
+            refreshSkillsViews();
+            return;
+          }
+        }
+      } catch (error) {
+        // Ignore and try directory listing fallback.
+      }
+
+      try {
+        const directoryResponse = await fetch("Skills/", { cache: "no-store" });
+        if (!directoryResponse.ok) return;
+        const html = await directoryResponse.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const fileNames = [...doc.querySelectorAll("a[href]")]
+          .map((anchor) => anchor.getAttribute("href") || "")
+          .map((href) => decodeURIComponent(href.split("?")[0].split("#")[0]))
+          .map((href) => href.split("/").pop() || "")
+          .filter((name) => !!name && imageExtension.test(name));
+
+        if (fileNames.length === 0) return;
+
+        FOLDERS.skills.items = fileNames.map((fileName, index) => {
+          const path = `Skills/${fileName}`;
+          const title = prettySkillName(fileName);
+          return {
+            id: `skill-${slug(title)}-${index + 1}`,
+            title,
+            type: "image",
+            icon: path,
+            path,
+            modified: FIXED_MODIFIED,
+            size: "Pending",
+            typeLabel: "Skill Icon"
+          };
+        });
+        refreshSkillsViews();
+      } catch (error) {
+        return;
+      }
+    }
+
+    function navigateExplorer(winId, folderId, pushHistory) {
+      const win = windowById(winId);
+      if (!win || win.kind !== "explorer") return;
+      if (pushHistory && win.history[win.historyIndex] !== folderId) {
+        win.history = win.history.slice(0, win.historyIndex + 1);
+        win.history.push(folderId);
+        win.historyIndex = win.history.length - 1;
+      }
+      win.folderId = folderId;
+      win.title = getFolder(folderId).title;
+      win.icon = "folder";
+      win.search = "";
+      renderWindowBody(win);
+      applyWindow(win);
+      renderTasks();
+    }
+
+    function toggleWindowFromTask(id) {
+      const win = windowById(id);
+      if (!win) return;
+      const isTop = topWindowId() === id && !win.minimized;
+      if (isTop) {
+        win.minimized = true;
+        applyWindow(win);
+        renderTasks();
+        return;
+      }
+      focusWindow(id);
+    }
+
+    function toggleMaximize(id) {
+      const win = windowById(id);
+      if (!win) return;
+      if (win.maximized) {
+        win.maximized = false;
+        win.x = win.restore.x;
+        win.y = win.restore.y;
+        win.w = win.restore.w;
+        win.h = win.restore.h;
+      } else {
+        win.restore = { x: win.x, y: win.y, w: win.w, h: win.h };
+        win.maximized = true;
+      }
+      applyWindow(win);
+      renderTasks();
+    }
+
+    function minimizeWindow(id) {
+      const win = windowById(id);
+      if (!win) return;
+      win.minimized = true;
+      applyWindow(win);
+      renderTasks();
+    }
+
+    function closeWindow(id) {
+      removeWindow(id);
+    }
+
+    function normalizeUrl(value) {
+      const input = value.trim();
+      if (!input || input.toLowerCase() === "home") return HOME;
+      if (/^[A-Za-z]:[\\/]/.test(input)) return input.replaceAll("\\", "/");
+      if (/^(\/|\.\/|\.\.\/)/.test(input)) return input.replaceAll("\\", "/");
+      if (/[\\/]/.test(input)) return input.replaceAll("\\", "/");
+      if (/\.(html?|pdf|txt|md|jpe?g|png|gif|webp|svg)$/i.test(input)) return input;
+      if (/^https?:\/\//i.test(input)) return input;
+      if (/^[\w.-]+\.[a-z]{2,}([/?#].*)?$/i.test(input)) return `https://${input}`;
+      return `https://www.google.com/search?igu=1&q=${encodeURIComponent(input)}`;
+    }
+
+    function goBrowser(winId, target) {
+      const win = windowById(winId);
+      if (!win || win.kind !== "browser") return;
+      const next = normalizeUrl(target);
+      const current = browserCurrent(win);
+      if (current !== next) {
+        win.browserHistory = win.browserHistory.slice(0, win.browserIndex + 1);
+        win.browserHistory.push(next);
+        win.browserIndex = win.browserHistory.length - 1;
+      }
+      renderWindowBody(win);
+      applyWindow(win);
+    }
+
+    function browserNav(winId, action) {
+      const win = windowById(winId);
+      if (!win || win.kind !== "browser") return;
+      if (action === "back") win.browserIndex = Math.max(0, win.browserIndex - 1);
+      if (action === "forward") win.browserIndex = Math.min(win.browserHistory.length - 1, win.browserIndex + 1);
+      if (action === "home") return goBrowser(winId, HOME);
+      renderWindowBody(win);
+    }
+
+    function terminalSay(text, tone = "") {
+      state.terminalLog.push({ text, tone });
+    }
+
+    function runTerminal(input) {
+      const raw = input.trim();
+      if (!raw) return;
+      terminalSay(`C:\\Portfolio> ${raw}`, "cmd");
+      const lower = raw.toLowerCase();
+      if (lower === "help") {
+        terminalSay("help");
+        terminalSay("open about");
+        terminalSay("open projects");
+        terminalSay("open games");
+        terminalSay("open skills");
+        terminalSay("open socials");
+        terminalSay("open chrome");
+        terminalSay("open terminal");
+        terminalSay("open notepad");
+        terminalSay("open adityaai");
+        terminalSay("theme dark");
+        terminalSay("theme light");
+        terminalSay("time");
+        terminalSay("date");
+        terminalSay("clear");
+        terminalSay("shutdown");
+      } else if (lower === "clear") {
+        state.terminalLog = [
+          { text: "Terminal cleared.", tone: "muted" },
+          { text: 'Type "help" for commands.', tone: "muted" }
+        ];
+      } else if (lower === "time") {
+        terminalSay(formatTaskbarTime(new Date()));
+      } else if (lower === "date") {
+        terminalSay(formatLongDate(new Date()));
+      } else if (lower === "theme dark") {
+        state.theme = "dark";
+        saveTheme(state.theme);
+        applyTheme();
+        terminalSay("Dark mode enabled.");
+      } else if (lower === "theme light") {
+        state.theme = "light";
+        saveTheme(state.theme);
+        applyTheme();
+        terminalSay("Light mode enabled.");
+      } else if (lower === "shutdown") {
+        terminalSay("Shutting down...");
+        shutdown();
+      } else if (lower.startsWith("open ")) {
+        const target = lower.slice(5).replace(/\s+/g, "");
+        if (target === "about" || target === "aboutme") {
+          openExplorer("about");
+          terminalSay("Opened About Me.");
+        } else if (target === "portfolio" || target === "projects") {
+          openExplorer("portfolio");
+          terminalSay("Opened Projects.");
+        } else if (target === "games" || target === "game") {
+          openGamesLauncher();
+          terminalSay("Opened Games.");
+        } else if (target === "skills" || target === "skill") {
+          openExplorer("skills");
+          terminalSay("Opened Skills.");
+        } else if (target === "socials" || target === "social") {
+          openExplorer("socials");
+          terminalSay("Opened Socials.");
+        } else if (target === "chrome" || target === "browser") {
+          openBrowser(HOME);
+          terminalSay("Opened Chrome.");
+        } else if (target === "terminal") {
+          openTerminal();
+          terminalSay("Terminal is already open.");
+        } else if (target === "notepad") {
+          openNotepad();
+          terminalSay("Opened Notepad.");
+        } else if (target === "adityaai" || target === "assistant" || target === "ai") {
+          openAssistant();
+          terminalSay("Opened Aditya AI.");
+        } else {
+          terminalSay('Unknown app. Try "open about", "open projects", "open games", "open skills", "open socials", "open chrome", "open notepad", or "open adityaai".');
+        }
+      } else {
+        terminalSay('Unknown command. Type "help" for supported commands.');
+      }
+
+      const terminal = state.windows.find((win) => win.kind === "terminal");
+      if (terminal) renderWindowBody(terminal);
+    }
+
+    function itemFromTarget(target) {
+      const itemId = target.dataset.itemId || target.dataset.entryId;
+      const winId = target.dataset.winId || "";
+      if (target.dataset.scope === "desktop") {
+        return { item: getDesktopItem(itemId), scope: "desktop", winId: "" };
+      }
+      if (winId) {
+        const win = windowById(winId);
+        return { item: win ? resolveExplorerItem(win, itemId) : null, scope: winId, winId };
+      }
+      return { item: null, scope: "", winId: "" };
+    }
+
+    function itemLocation(scope, item) {
+      if (scope === "desktop") return "Desktop";
+      const win = windowById(scope);
+      if (!win || win.kind !== "explorer") return "Desktop";
+      const parts = folderPath(win.folderId).map((id) => getFolder(id).title);
+      return parts.join("\\");
+    }
+
+    function buildContextEntries(item, scope, winId) {
+      const located = withLocation(item, itemLocation(scope, item));
+      if (item.type === "folder") {
+        return [
+          { label: "Open", action: () => openItem(item, scope === "desktop" ? {} : { winId }) },
+          { label: "Open in new window", action: () => openExplorer(item.folderId, { newWindow: true }) },
+          { separator: true },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
+      if (item.type === "link") {
+        return [
+          { label: "Open", action: () => openItem(item) },
+          { label: "Open in Chrome window", action: () => openItem(item, { browserWindow: true }) },
+          { separator: true },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
+      if (item.type === "page") {
+        return [
+          { label: "Open", action: () => openItem(item) },
+          { label: "Open in Chrome window", action: () => openItem(item) },
+          { separator: true },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
+      if (item.type === "game" || item.type === "games-launcher") {
+        return [
+          { label: "Open", action: () => openItem(item) },
+          { separator: true },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
+      if (item.type === "assistant") {
+        return [
+          { label: "Open", action: () => openAssistant() },
+          { separator: true },
+          { label: "Properties", action: () => openProperties(located) }
+        ];
+      }
+
+      return [
+        { label: "Open", action: () => openViewer(located) },
+        { separator: true },
+        { label: "Properties", action: () => openProperties(located) }
+      ];
+    }
+
+    function openSortMenu(winId, anchor) {
+      const win = windowById(winId);
+      if (!win) return;
+      const rect = anchor.getBoundingClientRect();
+      showMenu([
+        { label: "Name", active: win.sort === "name", action: () => { win.sort = "name"; renderWindowBody(win); } },
+        { label: "Type", active: win.sort === "type", action: () => { win.sort = "type"; renderWindowBody(win); } },
+        { label: "Date modified", active: win.sort === "date", action: () => { win.sort = "date"; renderWindowBody(win); } }
+      ], rect.left, rect.bottom + 6);
+    }
+
+    function openViewMenu(winId, anchor) {
+      const win = windowById(winId);
+      if (!win) return;
+      const rect = anchor.getBoundingClientRect();
+      showMenu([
+        { label: "Large icons", active: win.view === "large", action: () => { win.view = "large"; renderWindowBody(win); } },
+        { label: "Medium icons", active: win.view === "medium", action: () => { win.view = "medium"; renderWindowBody(win); } },
+        { label: "Details", active: win.view === "details", action: () => { win.view = "details"; renderWindowBody(win); } }
+      ], rect.left, rect.bottom + 6);
+    }
+
+    function openDesktopViewMenu(x, y) {
+      showMenu([
+        { label: "Large icons", active: state.desktopView === "large", action: () => { state.desktopView = "large"; renderDesktopIcons(); } },
+        { label: "Medium icons", active: state.desktopView === "medium", action: () => { state.desktopView = "medium"; renderDesktopIcons(); } }
+      ], x, y);
+    }
+
+    function openDesktopSortMenu(x, y) {
+      showMenu([
+        { label: "Name", active: state.desktopSort === "name", action: () => { state.desktopSort = "name"; renderDesktopIcons(); } },
+        { label: "Type", active: state.desktopSort === "type", action: () => { state.desktopSort = "type"; renderDesktopIcons(); } },
+        { label: "Date modified", active: state.desktopSort === "date", action: () => { state.desktopSort = "date"; renderDesktopIcons(); } }
+      ], x, y);
+    }
+
+    function openDesktopMenu(x, y) {
+      showMenu([
+        { label: "View", action: () => openDesktopViewMenu(x + 160, y) },
+        { label: "Sort", action: () => openDesktopSortMenu(x + 160, y + 34) },
+        { separator: true },
+        { label: "Personalize", action: () => openPersonalize() }
+      ], x, y);
+    }
+
+    function bindWindowFrame(el, winId) {
+      el.addEventListener("pointerdown", () => focusWindow(winId));
+
+      const titlebar = el.querySelector(".titlebar");
+      titlebar.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0 || event.target.closest("button,input,textarea")) return;
+        const win = windowById(winId);
+        if (!win || win.maximized || win.kind === "properties") return;
+        event.preventDefault();
+        focusWindow(winId);
+        const start = frameFor(win);
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const move = (moveEvent) => {
+          win.x = clamp(start.x + moveEvent.clientX - startX, 8, window.innerWidth - win.w - 8);
+          win.y = clamp(start.y + moveEvent.clientY - startY, 8, window.innerHeight - currentTaskbarBottom() - win.h);
+          applyWindow(win);
+        };
+        const stop = () => {
+          window.removeEventListener("pointermove", move);
+          window.removeEventListener("pointerup", stop);
+        };
+        window.addEventListener("pointermove", move);
+        window.addEventListener("pointerup", stop);
+      });
+
+      el.querySelectorAll(".resize-handle").forEach((handle) => {
+        handle.addEventListener("pointerdown", (event) => {
+          const win = windowById(winId);
+          if (!win || win.maximized || win.resizable === false) return;
+          event.preventDefault();
+          event.stopPropagation();
+          focusWindow(winId);
+          const dir = handle.dataset.dir;
+          const start = frameFor(win);
+          const startX = event.clientX;
+          const startY = event.clientY;
+
+          const move = (moveEvent) => {
+            let nextX = start.x;
+            let nextY = start.y;
+            let nextW = start.w;
+            let nextH = start.h;
+            const dx = moveEvent.clientX - startX;
+            const dy = moveEvent.clientY - startY;
+            const maxBottom = window.innerHeight - currentTaskbarBottom();
+
+            if (dir.includes("e")) nextW = Math.max(win.minW, Math.min(window.innerWidth - start.x - 8, start.w + dx));
+            if (dir.includes("s")) nextH = Math.max(win.minH, Math.min(maxBottom - start.y, start.h + dy));
+
+            if (dir.includes("w")) {
+              nextX = clamp(start.x + dx, 8, start.x + start.w - win.minW);
+              nextW = start.w - (nextX - start.x);
+            }
+
+            if (dir.includes("n")) {
+              nextY = clamp(start.y + dy, 8, start.y + start.h - win.minH);
+              nextH = start.h - (nextY - start.y);
+            }
+
+            win.x = nextX;
+            win.y = nextY;
+            win.w = nextW;
+            win.h = nextH;
+            win.restore = { x: win.x, y: win.y, w: win.w, h: win.h };
+            applyWindow(win);
+          };
+
+          const stop = () => {
+            window.removeEventListener("pointermove", move);
+            window.removeEventListener("pointerup", stop);
+          };
+
+          window.addEventListener("pointermove", move);
+          window.addEventListener("pointerup", stop);
+        });
+      });
+    }
+
+    function handleClick(event) {
+      const menuButton = event.target.closest("[data-menu-index]");
+      if (menuButton) {
+        const entry = state.menuEntries[Number(menuButton.dataset.menuIndex)];
+        hideMenu();
+        if (entry && entry.action) entry.action();
+        return;
+      }
+
+      const startItem = event.target.closest("[data-start-item]");
+      if (startItem) {
+        const item = START_ITEMS.find((entry) => entry.id === startItem.dataset.startItem);
+        if (item) item.open();
+        toggleStart(false);
+        return;
+      }
+
+      if (event.target.closest("#startBtn")) {
+        toggleStart(!state.startOpen);
+        return;
+      }
+
+      if (event.target.closest("#themeToggle")) {
+        state.theme = state.theme === "light" ? "dark" : "light";
+        saveTheme(state.theme);
+        applyTheme();
+        return;
+      }
+
+      const wallpaperPick = event.target.closest("[data-wallpaper-pick]");
+      if (wallpaperPick) {
+        state.wallpaper = wallpaperPick.dataset.wallpaperPick;
+        saveWallpaper(state.wallpaper);
+        applyWallpaper();
+        const personalize = state.windows.find((win) => win.kind === "personalize");
+        if (personalize) renderWindowBody(personalize);
+        hideMenu();
+        return;
+      }
+
+      if (event.target.closest("#clockBtn")) {
+        toggleClock(!state.clockOpen);
+        return;
+      }
+
+      if (event.target.closest("#portfolioOverlayClose")) {
+        closePortfolioOverlay();
+        return;
+      }
+
+      const calendarMode = event.target.closest("[data-calendar-mode]");
+      if (calendarMode) {
+        if (calendarMode.dataset.calendarMode === "month") {
+          state.calendarMode = "months";
+        }
+        if (calendarMode.dataset.calendarMode === "year") {
+          state.calendarMode = "years";
+          state.calendarRangeStart = rangeStartForYear(state.calendarDate.getFullYear());
+        }
+        renderCalendar();
+        return;
+      }
+
+      const calendarMonthPick = event.target.closest("[data-calendar-pick-month]");
+      if (calendarMonthPick) {
+        state.calendarDate = new Date(state.calendarDate.getFullYear(), Number(calendarMonthPick.dataset.calendarPickMonth), 1);
+        state.calendarMode = "days";
+        renderCalendar();
+        return;
+      }
+
+      const calendarYearPick = event.target.closest("[data-calendar-pick-year]");
+      if (calendarYearPick) {
+        state.calendarDate = new Date(Number(calendarYearPick.dataset.calendarPickYear), state.calendarDate.getMonth(), 1);
+        state.calendarMode = "months";
+        state.calendarRangeStart = rangeStartForYear(state.calendarDate.getFullYear());
+        renderCalendar();
+        return;
+      }
+
+      const calendarNav = event.target.closest("[data-calendar-nav]");
+      if (calendarNav) {
+        const delta = Number(calendarNav.dataset.calendarNav);
+        if (state.calendarMode === "years") {
+          state.calendarRangeStart += delta * 16;
+        } else if (state.calendarMode === "months") {
+          state.calendarDate = new Date(state.calendarDate.getFullYear() + delta, state.calendarDate.getMonth(), 1);
+        } else {
+          state.calendarDate = new Date(state.calendarDate.getFullYear(), state.calendarDate.getMonth() + delta, 1);
+        }
+        renderCalendar();
+        return;
+      }
+
+      const pin = event.target.closest("[data-pin]");
+      if (pin) {
+        const name = pin.dataset.pin;
+        if (name === "explorer") openExplorer("desktop");
+        if (name === "browser") openBrowser(HOME);
+        if (name === "terminal") openTerminal();
+        if (name === "notepad") openNotepad();
+        if (name === "assistant") openAssistant();
+        toggleStart(false);
+        return;
+      }
+
+      const task = event.target.closest("[data-task-window]");
+      if (task) {
+        toggleWindowFromTask(task.dataset.taskWindow);
+        return;
+      }
+
+      const power = event.target.closest("[data-power]");
+      if (power) {
+        shutdown();
+        return;
+      }
+
+      const windowAct = event.target.closest("[data-window-act]");
+      if (windowAct) {
+        const winId = windowAct.closest("[data-window-id]").dataset.windowId;
+        const action = windowAct.dataset.windowAct;
+        if (action === "min") minimizeWindow(winId);
+        if (action === "max") toggleMaximize(winId);
+        if (action === "close") closeWindow(winId);
+        return;
+      }
+
+      const folderNav = event.target.closest("[data-folder-nav]");
+      if (folderNav) {
+        navigateExplorer(folderNav.dataset.winId, folderNav.dataset.folderNav, true);
+        hideMenu();
+        return;
+      }
+
+      const explorerNav = event.target.closest("[data-explorer-nav]");
+      if (explorerNav) {
+        const win = windowById(explorerNav.dataset.winId);
+        if (!win) return;
+        const action = explorerNav.dataset.explorerNav;
+        if (action === "home") navigateExplorer(win.id, "desktop", true);
+        if (action === "up" && win.folderId !== "desktop") navigateExplorer(win.id, parentFolderId(win.folderId) || "desktop", true);
+        if (action === "back" && win.historyIndex > 0) {
+          win.historyIndex -= 1;
+          navigateExplorer(win.id, win.history[win.historyIndex], false);
+        }
+        if (action === "forward" && win.historyIndex < win.history.length - 1) {
+          win.historyIndex += 1;
+          navigateExplorer(win.id, win.history[win.historyIndex], false);
+        }
+        hideMenu();
+        return;
+      }
+
+      const sortBtn = event.target.closest("[data-sort-btn]");
+      if (sortBtn) {
+        openSortMenu(sortBtn.dataset.sortBtn, sortBtn);
+        return;
+      }
+
+      const viewBtn = event.target.closest("[data-view-btn]");
+      if (viewBtn) {
+        openViewMenu(viewBtn.dataset.viewBtn, viewBtn);
+        return;
+      }
+
+      const browserNavBtn = event.target.closest("[data-browser-nav]");
+      if (browserNavBtn) {
+        browserNav(browserNavBtn.dataset.winId, browserNavBtn.dataset.browserNav);
+        return;
+      }
+
+      const browserQuick = event.target.closest("[data-browser-quick]");
+      if (browserQuick) {
+        const browser = openBrowser(HOME);
+        goBrowser(browser.id, browserQuick.dataset.browserQuick);
+        return;
+      }
+
+      const launchGame = event.target.closest("[data-launch-game]");
+      if (launchGame) {
+        const gameId = launchGame.dataset.launchGame;
+        const gameItem = FOLDERS.games.items.find((item) => item.id === gameId && item.type === "game");
+        if (gameItem) openGameWindow(gameItem);
+        return;
+      }
+
+      const assistantSuggest = event.target.closest("[data-assistant-suggest]");
+      if (assistantSuggest) {
+        sendAssistantMessage(assistantSuggest.dataset.assistantSuggest || "");
+        return;
+      }
+
+      const desktopItem = event.target.closest(".desktop-icon");
+      if (desktopItem) {
+        const resolved = itemFromTarget(desktopItem);
+        selectItem("desktop", desktopItem.dataset.itemId);
+        if (resolved.item) openItem(resolved.item);
+        hideMenu();
+        return;
+      }
+
+      const entry = event.target.closest("[data-entry-id]");
+      if (entry) {
+        const resolved = itemFromTarget(entry);
+        selectItem(entry.dataset.winId, entry.dataset.entryId);
+        if (resolved.item) openItem(resolved.item, { winId: resolved.winId });
+        hideMenu();
+        return;
+      }
+
+      if (!event.target.closest("#startMenu")) toggleStart(false);
+      if (!event.target.closest("#clockFlyout")) toggleClock(false);
+      if (!event.target.closest("#menuFlyout")) hideMenu();
+
+      if (!event.target.closest(".desktop-icon") && !event.target.closest("[data-entry-id]")) {
+        clearSelection();
+      }
+    }
+
+    function handleDoubleClick(event) {
+      const itemButton = event.target.closest(".desktop-icon, [data-entry-id]");
+      if (!itemButton) return;
+      event.preventDefault();
+    }
+
+    function handleContextMenu(event) {
+      const itemButton = event.target.closest(".desktop-icon, [data-entry-id]");
+      if (itemButton) {
+        const resolved = itemFromTarget(itemButton);
+        if (!resolved.item) return;
+        event.preventDefault();
+        selectItem(resolved.scope, resolved.item.id);
+        showMenu(buildContextEntries(resolved.item, resolved.scope, resolved.winId), event.clientX, event.clientY);
+        return;
+      }
+
+      const onDesktopBackground = event.target.closest("#desktop") && !event.target.closest(".window, .taskbar, #startMenu, #clockFlyout, #menuFlyout");
+      if (!onDesktopBackground) return;
+      event.preventDefault();
+      clearSelection();
+      openDesktopMenu(event.clientX, event.clientY);
+    }
+
+    function handleInput(event) {
+      const startSearch = event.target.closest("#startSearch");
+      if (startSearch) {
+        state.startSearch = startSearch.value;
+        renderStartMenu();
+        return;
+      }
+
+      const explorerSearch = event.target.closest("[data-search-win]");
+      if (explorerSearch) {
+        const win = windowById(explorerSearch.dataset.searchWin);
+        if (!win) return;
+        const pos = explorerSearch.selectionStart;
+        win.search = explorerSearch.value;
+        renderWindowBody(win);
+        const next = windowEls.get(win.id)?.querySelector(`[data-search-win="${win.id}"]`);
+        if (next) {
+          next.focus();
+          next.setSelectionRange(pos, pos);
+        }
+        return;
+      }
+
+      const note = event.target.closest("[data-notepad-input]");
+      if (note) {
+        state.notepadText = note.value;
+      }
+    }
+
+    function handleSubmit(event) {
+      const terminalForm = event.target.closest("[data-terminal-form]");
+      if (terminalForm) {
+        event.preventDefault();
+        const input = terminalForm.querySelector("[data-terminal-input]");
+        runTerminal(input.value);
+        input.value = "";
+        return;
+      }
+
+      const browserForm = event.target.closest("[data-browser-form]");
+      if (browserForm) {
+        event.preventDefault();
+        const winId = browserForm.dataset.browserForm;
+        const input = browserForm.querySelector("[data-browser-input]");
+        goBrowser(winId, input.value);
+        return;
+      }
+
+      const browserHomeForm = event.target.closest("[data-browser-home-form]");
+      if (browserHomeForm) {
+        event.preventDefault();
+        const winId = browserHomeForm.dataset.browserHomeForm;
+        const input = browserHomeForm.querySelector("[data-browser-home-input]");
+        goBrowser(winId, input.value);
+        return;
+      }
+
+      const assistantWindowForm = event.target.closest("[data-assistant-form]");
+      if (assistantWindowForm) {
+        event.preventDefault();
+        const winId = assistantWindowForm.dataset.assistantForm;
+        const input = assistantWindowForm.querySelector(`[data-assistant-input="${winId}"]`);
+        sendAssistantMessage(input?.value || "");
+        if (input) input.value = "";
+      }
+    }
+
+    function handleKeydown(event) {
+      if (event.key === "Escape") {
+        if (refs.portfolioOverlay.classList.contains("open")) {
+          closePortfolioOverlay();
+          return;
+        }
+        toggleStart(false);
+        toggleClock(false);
+        hideMenu();
+      }
+
+      if (event.key === "Enter" && state.startOpen && document.activeElement === refs.startSearch) {
+        const query = state.startSearch.trim().toLowerCase();
+        const match = START_ITEMS.find((item) => item.title.toLowerCase().includes(query));
+        if (match) {
+          match.open();
+          toggleStart(false);
+        }
+      }
+    }
+
+    function handleMessage(event) {
+      if (!event || !event.data) return;
+      if (event.data === "close-portfolio-overlay") {
+        closePortfolioOverlay();
+      }
+    }
+
+    function onResize() {
+      state.windows.forEach((win) => {
+        if (!win.maximized) {
+          win.w = Math.min(win.w, window.innerWidth - 20);
+          win.h = Math.min(win.h, window.innerHeight - currentTaskbarBottom() - 8);
+          win.x = clamp(win.x, 8, Math.max(8, window.innerWidth - win.w - 8));
+          win.y = clamp(win.y, 8, Math.max(8, window.innerHeight - currentTaskbarBottom() - win.h));
+          win.restore = { x: win.x, y: win.y, w: win.w, h: win.h };
+        }
+        applyWindow(win);
+      });
+      updateClock();
+    }
+
+    function shutdown() {
+      toggleStart(false);
+      toggleClock(false);
+      hideMenu();
+      refs.shutdown.classList.remove("hidden");
+      requestAnimationFrame(() => refs.shutdown.classList.remove("fade"));
+      refs.shutdownText.textContent = "Trying to close the portfolio tab...";
+      setTimeout(() => {
+        window.open("", "_self");
+        window.close();
+      }, 1300);
+      setTimeout(() => {
+        refs.shutdownText.textContent = "The browser kept the tab open. The desktop is shut down and ready to close.";
+      }, 2400);
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function init() {
+      applyTheme();
+      applyWallpaper();
+      renderDesktopIcons();
+      renderStartMenu();
+      renderAssistantLog();
+      updateClock();
+      bindEvents();
+      if (mobile()) return;
+      setTimeout(() => {
+        refs.desktop.classList.add("ready");
+        refs.boot.classList.add("fade");
+      }, 1200);
+      setTimeout(() => refs.boot.classList.add("hidden"), 2000);
+      setInterval(updateClock, 1000);
+    }
+
+    function bindEvents() {
+      document.addEventListener("click", handleClick);
+      document.addEventListener("dblclick", handleDoubleClick);
+      document.addEventListener("contextmenu", handleContextMenu);
+      document.addEventListener("input", handleInput);
+      document.addEventListener("submit", handleSubmit);
+      document.addEventListener("keydown", handleKeydown);
+      window.addEventListener("message", handleMessage);
+      window.addEventListener("resize", onResize);
+    }
+
+    init();
+  </script>
+</body>
+</html>

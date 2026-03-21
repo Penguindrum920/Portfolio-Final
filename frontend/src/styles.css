@@ -1,0 +1,226 @@
+:root {
+  --bg: #0b1521;
+  --panel: #e9eef5;
+  --panel-line: #c3cfdd;
+  --text: #102030;
+  --muted: #495b70;
+  --taskbar: #dce5f1;
+  --assistant: #f7f9fc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.desktop-root {
+  height: 100%;
+  background: radial-gradient(circle at 20% 10%, #274764, transparent 35%), var(--bg);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.desktop-icons {
+  position: absolute;
+  top: 18px;
+  left: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.desktop-icons button {
+  width: 112px;
+  min-height: 56px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  text-align: left;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.desktop-windows {
+  height: calc(100% - 50px);
+  margin: 10px 10px 0 146px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  align-content: start;
+  overflow: auto;
+}
+
+.os-window {
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  overflow: hidden;
+  color: var(--text);
+  min-height: 200px;
+}
+
+.os-window header {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--panel-line);
+}
+
+.os-window header button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.os-window-body {
+  padding: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.taskbar {
+  height: 50px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--taskbar);
+  color: #1f3042;
+  border-top: 1px solid #b9c7d7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+.assistant-root {
+  position: absolute;
+  right: 14px;
+  bottom: 62px;
+}
+
+.assistant-fab {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid #b5c3d3;
+  background: var(--assistant);
+  color: #1f3042;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.assistant-window {
+  width: min(360px, 90vw);
+  height: min(520px, 74vh);
+  border: 1px solid #bcc9d9;
+  background: var(--assistant);
+  border-radius: 10px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.assistant-head {
+  min-height: 40px;
+  border-bottom: 1px solid #d4dde9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  color: #183049;
+}
+
+.assistant-head button {
+  border: 0;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.assistant-suggestions {
+  padding: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #dce3ed;
+}
+
+.assistant-suggestions button {
+  border: 1px solid #ccd7e4;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #21364d;
+  padding: 4px 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.assistant-log {
+  padding: 10px;
+  overflow: auto;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.bubble {
+  max-width: 92%;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.bubble.user {
+  margin-left: auto;
+  background: #2f5a88;
+  color: white;
+}
+
+.bubble.assistant {
+  background: #ffffff;
+  color: #23384f;
+  border: 1px solid #d4deea;
+}
+
+.bubble.typing {
+  opacity: 0.75;
+}
+
+.assistant-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid #dce4ef;
+}
+
+.assistant-form input {
+  min-height: 36px;
+  border: 1px solid #c5d3e2;
+  border-radius: 8px;
+  padding: 0 10px;
+}
+
+.assistant-form button {
+  min-width: 72px;
+  border: 1px solid #9eb2c9;
+  border-radius: 8px;
+  background: #ecf2f8;
+  color: #1f3348;
+}

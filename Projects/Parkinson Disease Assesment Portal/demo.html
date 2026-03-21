@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parkinson Disease Assesment Portal</title>
+  <style>
+    :root { --bg:#0a1211; --fg:#eefbf8; --line:rgba(255,255,255,.16); --muted:#a8cbc3; }
+    *{ box-sizing:border-box; }
+    body{ margin:0; min-height:100vh; background:radial-gradient(circle at 22% 18%, #1f4f46 0%, transparent 36%), var(--bg); color:var(--fg); font-family:"Segoe UI Variable","Segoe UI",sans-serif; overflow-x:hidden; }
+    .trail-layer{ position:fixed; inset:0; pointer-events:none; z-index:1; }
+    .trail-image{ position:absolute; width:92px; height:92px; border-radius:14px; object-fit:cover; border:1px solid rgba(255,255,255,.35); box-shadow:0 12px 24px rgba(0,0,0,.42); opacity:0; transform:translate(-50%,-50%) scale(.74) rotate(-8deg); transition:opacity .22s ease, transform .22s ease; }
+    .trail-image.live{ opacity:.92; transform:translate(-50%,-50%) scale(1) rotate(var(--rot)); }
+    main{ position:relative; z-index:2; width:min(980px,calc(100% - 40px)); margin:26px auto 36px; }
+    .panel{ border:1px solid var(--line); border-radius:16px; background:rgba(9,20,20,.62); padding:16px; margin-bottom:14px; backdrop-filter:blur(8px); }
+    h1{ margin:0; font-size:clamp(1.45rem,4.3vw,2.4rem); }
+    p{ margin:10px 0 0; color:var(--muted); line-height:1.6; }
+    .back{ display:inline-flex; min-height:34px; align-items:center; padding:0 12px; border-radius:9px; color:#e9fff8; text-decoration:none; border:1px solid rgba(126,255,221,.45); background:rgba(126,255,221,.08); }
+    .gallery{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-top:12px; }
+    .gallery img{ width:100%; border-radius:10px; border:1px solid rgba(255,255,255,.14); }
+  </style>
+</head>
+<body>
+  <div class="trail-layer" id="trailLayer" aria-hidden="true"></div>
+  <main>
+    <section class="panel">
+      <a class="back" href="../demo.html">Back to Projects Hub</a>
+      <h1>Parkinson Disease Assesment Portal</h1>
+      <p>Cursor trail here only uses Parkinson Disease Assesment Portal visuals.</p>
+      <div class="gallery">
+        <img src="Main.png" alt="Parkinson project main">
+        <img src="Screenshot 2026-03-21 111716.png" alt="Parkinson screenshot">
+        <img src="Screenshot 2026-03-21 113537.png" alt="Parkinson screenshot">
+      </div>
+    </section>
+  </main>
+  <script>
+    const images = [
+      "Main.png",
+      "Screenshot 2026-03-21 111716.png",
+      "Screenshot 2026-03-21 113537.png",
+      "Screenshot 2026-03-21 113607.png",
+      "Screenshot 2026-03-21 113720.png"
+    ];
+    const layer = document.getElementById("trailLayer");
+    let i = 0;
+    let px = 0;
+    let py = 0;
+    function spawn(x, y) {
+      const img = document.createElement("img");
+      img.className = "trail-image";
+      img.src = images[i % images.length];
+      i += 1;
+      img.alt = "";
+      img.style.left = `${x}px`;
+      img.style.top = `${y}px`;
+      img.style.setProperty("--rot", `${(Math.random() - 0.5) * 20}deg`);
+      layer.appendChild(img);
+      requestAnimationFrame(() => img.classList.add("live"));
+      setTimeout(() => {
+        img.classList.remove("live");
+        img.style.opacity = "0";
+        setTimeout(() => img.remove(), 220);
+      }, 900);
+    }
+    window.addEventListener("mousemove", (event) => {
+      const d = Math.hypot(event.clientX - px, event.clientY - py);
+      if (d > 14) {
+        spawn(event.clientX, event.clientY);
+        px = event.clientX;
+        py = event.clientY;
+      }
+    });
+  </script>
+</body>
+</html>

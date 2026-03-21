@@ -1,0 +1,20 @@
+[
+  {
+    "name": "AniVerse",
+    "description": "An anime-inspired interactive web experience with cinematic sections and dynamic visuals.",
+    "stack": ["HTML", "CSS", "JavaScript"],
+    "role": "Design and frontend implementation"
+  },
+  {
+    "name": "Pegasus",
+    "description": "A project landing experience with custom section transitions and image-driven storytelling.",
+    "stack": ["JavaScript", "CSS"],
+    "role": "UI architecture and motion logic"
+  },
+  {
+    "name": "Parkinson Disease Assessment Portal",
+    "description": "Healthcare-focused portal concept for symptom assessment and structured reporting.",
+    "stack": ["Web", "ML concepts"],
+    "role": "Product concept and implementation"
+  }
+]

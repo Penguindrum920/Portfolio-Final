@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio.exe</title>
+  <style>
+    :root {
+      --section-bg: rgba(37, 150, 190, 1);
+      --section-fg: #ff8765;
+      --line: rgba(255, 255, 255, 0.32);
+      --panel: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: var(--section-bg);
+      color: var(--section-fg);
+      font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      transition: background-color 700ms ease, color 700ms ease;
+      scroll-snap-type: y mandatory;
+    }
+
+    html {
+      scrollbar-width: none;
+    }
+
+    body::-webkit-scrollbar,
+    html::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+
+    .reveal-transition {
+      position: fixed;
+      inset: 0;
+      z-index: 18;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(10%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--section-bg) 74%, #ffffff 26%), var(--section-bg));
+    }
+
+    .reveal-transition.play {
+      animation: pageReveal 980ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes pageReveal {
+      0% {
+        opacity: 0.34;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-6%);
+      }
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px;
+      pointer-events: none;
+    }
+
+    .exit-btn {
+      min-height: 34px;
+      min-width: 90px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.24);
+      color: var(--section-fg);
+      cursor: pointer;
+      pointer-events: auto;
+      transition: background 220ms ease, color 220ms ease, border-color 220ms ease;
+    }
+
+    .exit-btn:hover {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .trail-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .trail-image {
+      position: absolute;
+      width: 116px;
+      height: 116px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8) rotate(-7deg);
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+
+    .trail-image.live {
+      opacity: 0.92;
+      transform: translate(-50%, -50%) scale(1) rotate(var(--rot));
+    }
+
+    main {
+      position: relative;
+      z-index: 6;
+      overflow-x: clip;
+      isolation: isolate;
+    }
+
+    section.block {
+      min-height: 100vh;
+      padding: clamp(18px, 3vw, 36px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 620ms ease, transform 620ms ease;
+      position: relative;
+      overflow: hidden;
+      contain: layout paint;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      will-change: transform, opacity;
+    }
+
+    section.block + section.block {
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    section.block.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .intro {
+      width: min(980px, calc(100% - 30px));
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: clamp(16px, 4vw, 44px);
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+    }
+
+    .shuffle-parent {
+      margin: 0;
+      font-size: clamp(2.1rem, 10vw, 7rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .shuffle-char-wrap {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: bottom;
+    }
+
+    .shuffle-char-inner {
+      display: inline-block;
+      white-space: nowrap;
+      will-change: transform;
+    }
+
+    .intro-copy {
+      margin: 18px auto 0;
+      width: min(760px, 100%);
+      line-height: 1.7;
+      font-size: clamp(0.95rem, 2.1vw, 1.15rem);
+      color: var(--section-fg);
+    }
+
+    .project-card {
+      width: min(1240px, calc(100% - 22px));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      padding: clamp(12px, 2.8vw, 24px);
+      box-shadow: 0 18px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .project-title {
+      margin: 0 0 12px;
+      font-size: clamp(1.6rem, 4.4vw, 3rem);
+      letter-spacing: -0.02em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1.9fr 1.1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .layout > * {
+      min-width: 0;
+    }
+
+    .pane {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.16);
+      padding: 12px;
+    }
+
+    .pane h3 {
+      margin: 0 0 8px;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.95;
+    }
+
+    .pane p {
+      margin: 0;
+      line-height: 1.65;
+      font-size: 0.95rem;
+    }
+
+    .stack {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 7px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .preview-wrap {
+      height: clamp(280px, 42vw, 460px);
+      min-height: 280px;
+      max-height: 460px;
+      aspect-ratio: 16 / 10;
+      width: 100%;
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.42);
+    }
+
+    .preview {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      object-position: center;
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .controls button {
+      min-width: 38px;
+      min-height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.16);
+      color: var(--section-fg);
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      background: rgba(0, 0, 0, 0.32);
+    }
+
+    .gallery {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .track {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(150px, 1fr);
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+      overscroll-behavior-x: contain;
+      max-width: 100%;
+    }
+
+    .thumb {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      opacity: 0.68;
+      cursor: pointer;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .thumb:hover,
+    .thumb.active {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-wrap {
+        height: clamp(220px, 52vw, 320px);
+        min-height: 220px;
+        max-height: 320px;
+      }
+
+      .trail-image {
+        width: 94px;
+        height: 94px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal-transition" id="revealTransition" aria-hidden="true"></div>
+  <div class="topbar">
+    <button class="exit-btn" id="exitBtn" type="button">Exit</button>
+  </div>
+  <div class="trail-layer" id="trailLayer" aria-hidden="true"></div>
+
+  <main>
+    <section class="block" data-theme-bg="rgba(37, 150, 190, 1)" data-theme-fg="#FF8765" data-project="intro">
+      <article class="intro">
+        <h1 class="shuffle-parent" id="shuffleHeading">Portfolio</h1>
+        <p class="intro-copy">Welcome to my lab where you can take a loot at my creations.</p>
+        <p class="intro-copy">Scroll throught to browse the projects and press esc or click on exit button to go back to desktop.</p>
+      </article>
+    </section>
+
+    <section class="block" data-theme-bg="rgba(7, 121, 255, 1)" data-theme-fg="rgba(183, 249, 255, 1)" data-project="aniverse">
+      <article class="project-card">
+        <h2 class="project-title">AniVerse</h2>
+        <div class="layout">
+          <aside class="pane">
+            <h3>Description</h3>
+            <p>AniVerse is built as a vibrant interactive experience with playful motion, cinematic composition, and energetic visual storytelling.</p>
+          </aside>
+
+          <div class="pane">
+            <div class="preview-wrap">
+              <img class="preview" data-preview="aniverse" src="AniVerse/Main.png" alt="AniVerse preview">
+            </div>
+            <div class="controls">
+              <button type="button" data-dir="prev" data-target="aniverse" aria-label="Previous image">&#8592;</button>
+              <button type="button" data-dir="next" data-target="aniverse" aria-label="Next image">&#8594;</button>
+            </div>
+          </div>
+
+          <aside class="pane">
+            <h3>Tech Stack</h3>
+            <ul class="stack">
+              <li>HTML5 + CSS3</li>
+              <li>JavaScript</li>
+              <li>Animation-first UI</li>
+              <li>Responsive Components</li>
+            </ul>
+          </aside>
+        </div>
+        <div class="gallery">
+          <div class="track" data-track="aniverse"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="block" data-theme-bg="rgba(55, 175, 93, 1)" data-theme-fg="rgba(198, 255, 0, 1)" data-project="parkinson">
+      <article class="project-card">
+        <h2 class="project-title">Parkinson Disease Assesment Portal</h2>
+        <div class="layout">
+          <aside class="pane">
+            <h3>Description</h3>
+            <p>A portal-oriented workflow with clear form flow and readable visual structure, designed for reliable medical information presentation.</p>
+          </aside>
+
+          <div class="pane">
+            <div class="preview-wrap">
+              <img class="preview" data-preview="parkinson" src="Parkinson Disease Assesment Portal/Main.png" alt="Parkinson project preview">
+            </div>
+            <div class="controls">
+              <button type="button" data-dir="prev" data-target="parkinson" aria-label="Previous image">&#8592;</button>
+              <button type="button" data-dir="next" data-target="parkinson" aria-label="Next image">&#8594;</button>
+            </div>
+          </div>
+
+          <aside class="pane">
+            <h3>Tech Stack</h3>
+            <ul class="stack">
+              <li>HTML5 + CSS3</li>
+              <li>JavaScript</li>
+              <li>Form and Data UI</li>
+              <li>Structured Workflows</li>
+            </ul>
+          </aside>
+        </div>
+        <div class="gallery">
+          <div class="track" data-track="parkinson"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="block" data-theme-bg="rgba(255, 255, 255, 1)" data-theme-fg="rgba(54, 54, 54, 1)" data-project="pegasus">
+      <article class="project-card">
+        <h2 class="project-title">Pegasus</h2>
+        <div class="layout">
+          <aside class="pane">
+            <h3>Description</h3>
+            <p>Pegasus focuses on clean composition and modern interaction, balancing minimal visuals with expressive transitions.</p>
+          </aside>
+
+          <div class="pane">
+            <div class="preview-wrap">
+              <img class="preview" data-preview="pegasus" src="Pegasus/Main.png" alt="Pegasus preview">
+            </div>
+            <div class="controls">
+              <button type="button" data-dir="prev" data-target="pegasus" aria-label="Previous image">&#8592;</button>
+              <button type="button" data-dir="next" data-target="pegasus" aria-label="Next image">&#8594;</button>
+            </div>
+          </div>
+
+          <aside class="pane">
+            <h3>Tech Stack</h3>
+            <ul class="stack">
+              <li>HTML5 + CSS3</li>
+              <li>JavaScript</li>
+              <li>Modern UI Composition</li>
+              <li>Media-rich Presentation</li>
+            </ul>
+          </aside>
+        </div>
+        <div class="gallery">
+          <div class="track" data-track="pegasus"></div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const imagesByProject = {
+      aniverse: [
+        "AniVerse/Main.png",
+        "AniVerse/Screenshot 2026-03-21 114705.png",
+        "AniVerse/Screenshot 2026-03-21 115152.png",
+        "AniVerse/Screenshot 2026-03-21 115217.png",
+        "AniVerse/Screenshot 2026-03-21 115252.png",
+        "AniVerse/Screenshot 2026-03-21 115318.png",
+        "AniVerse/Screenshot 2026-03-21 115339.png",
+        "AniVerse/Screenshot 2026-03-21 115406.png",
+        "AniVerse/Screenshot 2026-03-21 115443.png",
+        "AniVerse/Screenshot 2026-03-21 115524.png"
+      ],
+      parkinson: [
+        "Parkinson Disease Assesment Portal/Main.png",
+        "Parkinson Disease Assesment Portal/Screenshot 2026-03-21 111716.png",
+        "Parkinson Disease Assesment Portal/Screenshot 2026-03-21 113537.png",
+        "Parkinson Disease Assesment Portal/Screenshot 2026-03-21 113607.png",
+        "Parkinson Disease Assesment Portal/Screenshot 2026-03-21 113720.png"
+      ],
+      pegasus: [
+        "Pegasus/Main.png",
+        "Pegasus/Screenshot 2026-03-21 114224.png",
+        "Pegasus/Screenshot 2026-03-21 114313.png",
+        "Pegasus/Screenshot 2026-03-21 114605.png"
+      ]
+    };
+
+    const galleryIndex = {
+      aniverse: 0,
+      parkinson: 0,
+      pegasus: 0
+    };
+
+    function buildShuffleHeading() {
+      const heading = document.getElementById("shuffleHeading");
+      if (!heading) return;
+      const text = heading.textContent || "";
+      heading.innerHTML = "";
+      const chars = text.split("");
+      const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      const wraps = [];
+
+      chars.forEach((char) => {
+        const wrap = document.createElement("span");
+        wrap.className = "shuffle-char-wrap";
+        const inner = document.createElement("span");
+        inner.className = "shuffle-char-inner";
+        inner.textContent = char;
+        wrap.appendChild(inner);
+        heading.appendChild(wrap);
+        wraps.push({ wrap, inner, final: char });
+      });
+
+      wraps.forEach((item, index) => {
+        let count = 0;
+        const limit = 14 + Math.floor(Math.random() * 9);
+        const timer = setInterval(() => {
+          count += 1;
+          if (count >= limit) {
+            item.inner.textContent = item.final;
+            clearInterval(timer);
+            return;
+          }
+          item.inner.textContent = charset[Math.floor(Math.random() * charset.length)];
+        }, 22 + index * 2);
+      });
+
+      heading.addEventListener("mouseenter", () => {
+        wraps.forEach((item, index) => {
+          let count = 0;
+          const limit = 10 + Math.floor(Math.random() * 6);
+          const timer = setInterval(() => {
+            count += 1;
+            if (count >= limit) {
+              item.inner.textContent = item.final;
+              clearInterval(timer);
+              return;
+            }
+            item.inner.textContent = charset[Math.floor(Math.random() * charset.length)];
+          }, 18 + index);
+        });
+      });
+    }
+
+    function setPreview(project, idx) {
+      const preview = document.querySelector(`[data-preview=\"${project}\"]`);
+      const track = document.querySelector(`[data-track=\"${project}\"]`);
+      if (!preview || !track) return;
+      const list = imagesByProject[project];
+      const normalized = (idx + list.length) % list.length;
+      galleryIndex[project] = normalized;
+
+      preview.style.opacity = "0";
+      preview.style.transform = "scale(0.986)";
+      setTimeout(() => {
+        preview.src = list[normalized];
+        preview.style.opacity = "1";
+        preview.style.transform = "scale(1)";
+      }, 110);
+
+      track.querySelectorAll(".thumb").forEach((thumb, index) => {
+        thumb.classList.toggle("active", index === normalized);
+      });
+    }
+
+    function buildGallery(project) {
+      const track = document.querySelector(`[data-track=\"${project}\"]`);
+      if (!track) return;
+      imagesByProject[project].forEach((src, index) => {
+        const thumb = document.createElement("img");
+        thumb.className = "thumb";
+        if (index === 0) thumb.classList.add("active");
+        thumb.src = src;
+        thumb.alt = "";
+        thumb.addEventListener("click", () => setPreview(project, index));
+        track.appendChild(thumb);
+      });
+    }
+
+    Object.keys(imagesByProject).forEach(buildGallery);
+
+    document.querySelectorAll("[data-dir]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const project = button.dataset.target;
+        const delta = button.dataset.dir === "next" ? 1 : -1;
+        setPreview(project, galleryIndex[project] + delta);
+      });
+    });
+
+    const revealTransition = document.getElementById("revealTransition");
+    const blocks = [...document.querySelectorAll("section.block")];
+    const allTrailImages = [
+      ...imagesByProject.aniverse,
+      ...imagesByProject.parkinson,
+      ...imagesByProject.pegasus
+    ];
+    let activeTrailImages = allTrailImages;
+    let activeThemeKey = "";
+
+    function applyThemeFromSection(section) {
+      if (!section) return;
+      const bg = section.dataset.themeBg;
+      const fg = section.dataset.themeFg;
+      const project = section.dataset.project;
+      const themeKey = `${bg}|${fg}`;
+      if (themeKey === activeThemeKey) return;
+      activeThemeKey = themeKey;
+
+      if (project && project !== "intro" && imagesByProject[project]) {
+        activeTrailImages = imagesByProject[project];
+      } else {
+        activeTrailImages = allTrailImages;
+      }
+
+      revealTransition.style.background = bg;
+      revealTransition.classList.remove("play");
+      void revealTransition.offsetWidth;
+      revealTransition.classList.add("play");
+
+      document.documentElement.style.setProperty("--section-bg", bg);
+      document.documentElement.style.setProperty("--section-fg", fg);
+    }
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
+      });
+    }, { threshold: 0.22 });
+
+    blocks.forEach((section) => sectionObserver.observe(section));
+
+    function nearestSectionByViewportCenter() {
+      const viewportCenter = window.innerHeight / 2;
+      let nearest = null;
+      let best = Number.POSITIVE_INFINITY;
+      blocks.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        const sectionCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(sectionCenter - viewportCenter);
+        if (distance < best) {
+          best = distance;
+          nearest = section;
+        }
+      });
+      return nearest;
+    }
+
+    let ticking = false;
+    function onScrollThemeSync() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const nearest = nearestSectionByViewportCenter();
+        if (nearest) applyThemeFromSection(nearest);
+        ticking = false;
+      });
+    }
+
+    window.addEventListener("scroll", onScrollThemeSync, { passive: true });
+    window.addEventListener("resize", onScrollThemeSync);
+
+    const trailLayer = document.getElementById("trailLayer");
+
+    let trailIndex = 0;
+    let lastX = 0;
+    let lastY = 0;
+
+    function spawnTrail(x, y) {
+      const img = document.createElement("img");
+      img.className = "trail-image";
+      const pool = activeTrailImages.length ? activeTrailImages : allTrailImages;
+      img.src = pool[trailIndex % pool.length];
+      img.alt = "";
+      trailIndex += 1;
+      img.style.left = `${x}px`;
+      img.style.top = `${y}px`;
+      img.style.setProperty("--rot", `${(Math.random() - 0.5) * 16}deg`);
+      trailLayer.appendChild(img);
+
+      requestAnimationFrame(() => img.classList.add("live"));
+
+      setTimeout(() => {
+        img.classList.remove("live");
+        img.style.opacity = "0";
+        setTimeout(() => img.remove(), 130);
+      }, 360);
+    }
+
+    window.addEventListener("mousemove", (event) => {
+      const distance = Math.hypot(event.clientX - lastX, event.clientY - lastY);
+      if (distance > 30) {
+        spawnTrail(event.clientX, event.clientY);
+        lastX = event.clientX;
+        lastY = event.clientY;
+      }
+    });
+
+    function exitToDesktop() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage("close-portfolio-overlay", "*");
+      } else {
+        window.history.back();
+      }
+    }
+
+    document.getElementById("exitBtn").addEventListener("click", exitToDesktop);
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        exitToDesktop();
+      }
+    });
+
+    buildShuffleHeading();
+    applyThemeFromSection(document.querySelector("section.block"));
+    onScrollThemeSync();
+  </script>
+</body>
+</html>

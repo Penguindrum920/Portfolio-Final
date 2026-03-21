@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>About Me</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#c7c6c6",
+              "secondary": "#5e5e5e",
+              "error": "#ba1a1a",
+              "on-secondary-fixed-variant": "#464747",
+              "on-error": "#ffffff",
+              "outline": "#767684",
+              "inverse-primary": "#bfc2ff",
+              "surface-container-highest": "#e3e2e2",
+              "surface-tint": "#4b53bc",
+              "surface-bright": "#faf9f9",
+              "inverse-on-surface": "#f1f0f0",
+              "surface-variant": "#e3e2e2",
+              "secondary-fixed": "#e3e2e2",
+              "on-secondary-container": "#646464",
+              "surface": "#faf9f9",
+              "on-primary": "#ffffff",
+              "tertiary": "#220000",
+              "outline-variant": "#c6c5d5",
+              "on-primary-fixed": "#00006e",
+              "background": "#faf9f9",
+              "on-primary-container": "#777eea",
+              "surface-container-high": "#e8e8e8",
+              "inverse-surface": "#2f3131",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#1a1c1c",
+              "on-tertiary-container": "#d96756",
+              "surface-container": "#eeeeee",
+              "primary-container": "#000080",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#bfc2ff",
+              "primary": "#00003c",
+              "surface-dim": "#dadada",
+              "on-secondary": "#ffffff",
+              "on-tertiary-fixed": "#410000",
+              "surface-container-low": "#f4f3f3",
+              "tertiary-container": "#4d0000",
+              "tertiary-fixed": "#ffdad4",
+              "on-background": "#1a1c1c",
+              "on-surface-variant": "#464653",
+              "on-primary-fixed-variant": "#3239a3",
+              "on-tertiary-fixed-variant": "#82271c",
+              "primary-fixed": "#e0e0ff",
+              "on-secondary-fixed": "#1b1c1c",
+              "tertiary-fixed-dim": "#ffb4a8",
+              "secondary-container": "#e3e2e2",
+              "error-container": "#ffdad6"
+            },
+            fontFamily: {
+              "headline": ["Public Sans"],
+              "body": ["Public Sans"],
+              "label": ["Public Sans"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .window-shadow {
+            box-shadow: inset 1px 1px 0px white, inset -1px -1px 0px rgba(0,0,0,0.5), 2px 2px 10px rgba(0,0,0,0.3);
+        }
+        .inset-bevel {
+            box-shadow: inset 2px 2px 0px #000, inset -1px -1px 0px #fff;
+        }
+        .outset-bevel {
+            box-shadow: inset 1px 1px 0px #fff, inset -1px -1px 0px #000;
+        }
+        .outset-bevel:active {
+            box-shadow: inset 2px 2px 0px #000, inset -1px -1px 0px #fff;
+            transform: translate(1px, 1px);
+        }
+    </style>
+</head>
+<body class="bg-surface-dim font-body text-on-surface min-h-screen flex items-center justify-center p-4">
+<!-- About_Me.exe Application Window -->
+<div class="bg-surface-container w-full max-w-4xl window-shadow flex flex-col">
+<!-- Title Bar -->
+<div class="bg-primary-container h-8 flex items-center px-2 justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-white text-sm" data-weight="fill" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-white font-bold text-sm tracking-tight font-headline">About_Me.exe</span>
+</div>
+<div class="flex gap-1">
+<button class="w-5 h-5 bg-secondary-container flex items-center justify-center outset-bevel text-black">
+<span class="material-symbols-outlined text-[14px]">minimize</span>
+</button>
+<button class="w-5 h-5 bg-secondary-container flex items-center justify-center outset-bevel text-black">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+</div>
+<!-- Window Content -->
+<div class="p-6 md:p-10 flex flex-col md:flex-row gap-10">
+<!-- Left Column: Content -->
+<div class="flex-1 flex flex-col space-y-6">
+<div class="space-y-4">
+<h1 class="text-4xl md:text-5xl font-black italic text-primary tracking-tighter uppercase leading-none">
+                        Computer Science Engineer <br/>
+<span class="text-on-tertiary-container">v2.0.24</span>
+</h1>
+<div class="h-1 bg-primary w-24"></div>
+</div>
+<div class="bg-surface-container-lowest p-6 inset-bevel">
+<p class="text-on-surface-variant font-body leading-relaxed text-lg">
+                        I am an ambitious <span class="font-bold text-primary">Computer Science student</span> specializing in web applications and Machine Learning projects. 
+                    </p>
+<p class="mt-4 text-on-surface-variant font-body leading-relaxed">
+                        Eager about learning, I am currently focused on projects related to <span class="bg-surface-container-highest px-1">Machine Learning</span> and using them along with creative technologies like Three.js.
+                    </p>
+</div>
+<div class="pt-4">
+<a class="outset-bevel bg-primary-container text-white px-8 py-3 flex items-center gap-3 transition-all hover:bg-primary" download="Aditya_Kaushik_Resume.pdf" href="./Aditya_Kaushik___1RF23CS008_Resume.pdf">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">download</span>
+<span class="font-bold uppercase tracking-widest text-sm">Download Resume</span>
+</a>
+</div>
+<div class="mt-auto grid grid-cols-3 gap-2 pt-8">
+<div class="p-2 bg-surface-container-low inset-bevel flex flex-col">
+<span class="text-[10px] font-bold uppercase text-outline">Language</span>
+<span class="text-sm font-bold">Python</span>
+</div>
+<div class="p-2 bg-surface-container-low inset-bevel flex flex-col">
+<span class="text-[10px] font-bold uppercase text-outline">Specialisation</span>
+<span class="text-sm font-bold">ML</span>
+</div>
+<div class="p-2 bg-surface-container-low inset-bevel flex flex-col">
+<span class="text-[10px] font-bold uppercase text-outline">Hobbies</span>
+<span class="text-sm font-bold">Anime, Manga and Video Games</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Profile Image -->
+<div class="w-full md:w-72 flex flex-col items-center">
+<div class="w-full aspect-[4/5] bg-surface-container-lowest inset-bevel p-2 relative">
+<img alt="Aditya Kaushik portrait" class="w-full h-full object-cover" data-alt="Portrait of Aditya Kaushik" src="./1RF23CS008-Aditya Kaushik.jpeg"/>
+<div class="absolute bottom-4 right-4 bg-white px-2 py-1 outset-bevel text-[10px] font-bold uppercase">
+                        User_ID: 404
+                    </div>
+</div>
+<div class="mt-6 w-full space-y-2">
+<div class="flex justify-between items-end border-b-2 border-outline-variant pb-1">
+<span class="text-[11px] font-black uppercase text-on-surface-variant">Status</span>
+<span class="text-xs font-bold text-primary">ONLINE</span>
+</div>
+<div class="flex justify-between items-end border-b-2 border-outline-variant pb-1">
+<span class="text-[11px] font-black uppercase text-on-surface-variant">Location</span>
+<span class="text-xs font-bold text-primary">Bengaluru</span>
+</div>
+<div class="flex justify-between items-end border-b-2 border-outline-variant pb-1">
+<span class="text-[11px] font-black uppercase text-on-surface-variant">Class</span>
+<span class="text-xs font-bold text-primary">Student</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Window Status Bar -->
+<div class="bg-surface-container h-6 border-t border-outline-variant flex items-center px-2 gap-4">
+<div class="flex-1 inset-bevel h-4 px-2 flex items-center">
+<span class="text-[10px] text-on-secondary-container font-bold uppercase">4 objects found</span>
+</div>
+<div class="w-24 inset-bevel h-4 px-2 flex items-center">
+<span class="text-[10px] text-on-secondary-container font-bold uppercase">10.2 MB</span>
+</div>
+</div>
+</div>
+</body></html>
