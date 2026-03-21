@@ -16,3 +16,6 @@ backend/.env
 .DS_Store
 Thumbs.db
 .vscode/
+.vercel
+.env*.local
+hf-space-deploy/

@@ -1,5 +1,5 @@
 {
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
   "headers": [
     {
@@ -11,6 +11,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/", "destination": "/code.html" }
+    { "source": "/", "destination": "/index.html" }
   ]
 }
