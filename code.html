@@ -257,12 +257,26 @@
       position: absolute;
       top: 20px;
       left: 18px;
+      right: 18px;
       bottom: calc(var(--taskbar-height) + 18px);
       display: grid;
-      grid-auto-rows: 98px;
-      gap: 8px;
+      --desktop-icon-row-size: 98px;
+      --desktop-icon-gap: 8px;
+      grid-template-rows: repeat(var(--desktop-icon-rows, 6), var(--desktop-icon-row-size));
+      grid-auto-flow: column;
+      grid-auto-columns: max-content;
+      gap: var(--desktop-icon-gap);
       z-index: 2;
       align-content: start;
+      justify-content: start;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-right: 8px;
+      scrollbar-width: none;
+    }
+
+    .desktop-icons::-webkit-scrollbar {
+      display: none;
     }
 
     .desktop-icon {
@@ -304,7 +318,7 @@
     }
 
     .desktop-icons.view-large {
-      grid-auto-rows: 104px;
+      --desktop-icon-row-size: 104px;
     }
 
     .desktop-icons.view-large .desktop-icon {
@@ -317,7 +331,7 @@
     }
 
     .desktop-icons.view-medium {
-      grid-auto-rows: 90px;
+      --desktop-icon-row-size: 90px;
     }
 
     .desktop-icons.view-medium .desktop-icon {
@@ -1968,8 +1982,10 @@
       border-radius: 10px;
       padding: 8px 10px;
       font-size: 0.83rem;
-      line-height: 1.4;
+      line-height: 1.5;
       border: 1px solid transparent;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
 
     .assistant-bubble.user {
@@ -2034,47 +2050,424 @@
     }
 
     @media (max-width: 900px) {
+      :root {
+        --taskbar-height: 66px;
+        --window-radius: 14px;
+        --shadow: 0 16px 34px rgba(0, 0, 0, 0.32);
+      }
+
+      html,
+      body {
+        overflow: hidden;
+        touch-action: manipulation;
+        overscroll-behavior: none;
+      }
+
       .desktop {
-        display: none;
+        display: block;
+        opacity: 1;
       }
 
       .mobile {
-        width: 100vw;
-        height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-        background-image: linear-gradient(180deg, rgba(12, 18, 28, 0.24), rgba(6, 8, 12, 0.68)), var(--wallpaper);
-        background-size: cover;
+        display: none;
+      }
+
+      .boot {
+        animation: mobileBootFailsafe 0.7s ease 2.2s forwards;
+      }
+
+      .wallpaper {
         background-position: center;
+        transform: scale(1.04);
       }
 
-      .mobile-card {
-        width: min(420px, 100%);
-        padding: 28px;
-        border-radius: 22px;
-        background: rgba(255, 255, 255, 0.84);
-        color: #12151a;
-        text-align: center;
-        box-shadow: var(--shadow);
+      .wallpaper-tint {
+        opacity: 0.42;
       }
 
-      .mobile-card img {
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 16px;
-        object-fit: contain;
+      .desktop-icons {
+        top: max(12px, env(safe-area-inset-top));
+        left: 10px;
+        right: 10px;
+        bottom: calc(var(--taskbar-height) + 12px);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-rows: none;
+        grid-auto-flow: row;
+        grid-auto-columns: initial;
+        grid-auto-rows: minmax(92px, auto);
+        gap: 8px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-bottom: 8px;
+        scrollbar-width: none;
       }
 
-      .mobile-card h1 {
-        margin: 0 0 10px;
-        font-size: 1.6rem;
+      .desktop-icons::-webkit-scrollbar {
+        display: none;
       }
 
-      .mobile-card p {
-        margin: 0;
-        line-height: 1.55;
-        color: #495362;
+      .desktop-icons.view-large,
+      .desktop-icons.view-medium {
+        grid-auto-rows: minmax(92px, auto);
+      }
+
+      .desktop-icon,
+      .desktop-icons.view-large .desktop-icon,
+      .desktop-icons.view-medium .desktop-icon {
+        width: 100%;
+        min-height: 88px;
+        padding: 7px 4px;
+        justify-content: flex-start;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.12);
+      }
+
+      .desktop-icon:hover,
+      .desktop-icon.selected {
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      .desktop-icon img,
+      .desktop-icons.view-large .desktop-icon img,
+      .desktop-icons.view-medium .desktop-icon img {
+        width: 42px;
+        height: 42px;
+      }
+
+      .desktop-icon span {
+        font-size: 0.74rem;
+        line-height: 1.18;
+      }
+
+      .window.maximized {
+        border-radius: 14px;
+      }
+
+      .titlebar {
+        min-height: 44px;
+        padding-left: 10px;
+        cursor: default;
+      }
+
+      .title {
+        gap: 8px;
+        font-size: 0.84rem;
+      }
+
+      .window-control {
+        width: 42px;
+        height: 38px;
+        border-radius: 9px;
+      }
+
+      .explorer-toolbar,
+      .browser-toolbar {
+        min-height: auto;
+        padding: 8px;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+
+      .toolbar-group {
+        order: 1;
+        gap: 4px;
+      }
+
+      .address-bar,
+      .browser-address {
+        order: 2;
+        min-width: 0;
+        flex: 1 1 calc(100% - 150px);
+      }
+
+      .toolbar-spacer {
+        display: none;
+      }
+
+      .search-box {
+        order: 3;
+        width: 100%;
+        flex: 1 0 100%;
+      }
+
+      .toolbar-button {
+        order: 4;
+        min-height: 34px;
+        padding: 0 10px;
+      }
+
+      .explorer-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .folder-pane {
+        padding: 10px;
+      }
+
+      .entry-grid.large,
+      .entry-grid.medium {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .entry,
+      .entry.large {
+        min-height: 92px;
+        padding: 8px 4px;
+        border-radius: 10px;
+      }
+
+      .entry-icon,
+      .entry.large .entry-icon {
+        width: 38px;
+        height: 38px;
+      }
+
+      .entry-label {
+        font-size: 0.76rem;
+      }
+
+      .details-view {
+        min-width: 540px;
+      }
+
+      .browser-home {
+        padding: 20px 14px;
+      }
+
+      .browser-home-search {
+        width: 100%;
+      }
+
+      .browser-quick {
+        justify-content: center;
+      }
+
+      .game-app-shell {
+        padding: 0;
+      }
+
+      .games-launcher,
+      .store-app,
+      .personalize,
+      .properties {
+        padding: 12px;
+      }
+
+      .games-launcher-head h2,
+      .store-head h2 {
+        font-size: 1.1rem;
+      }
+
+      .games-launcher-grid,
+      .store-grid,
+      .wallpaper-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .viewer {
+        padding: 8px;
+      }
+
+      .notepad-menu {
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .notepad-menu::-webkit-scrollbar {
+        display: none;
+      }
+
+      .assistant-suggest {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+      }
+
+      .assistant-suggest::-webkit-scrollbar {
+        display: none;
+      }
+
+      .assistant-suggest button {
+        flex: 0 0 auto;
+      }
+
+      .assistant-form {
+        grid-template-columns: 1fr;
+      }
+
+      .assistant-form button {
+        min-height: 36px;
+      }
+
+      .start-menu {
+        left: 8px;
+        right: 8px;
+        bottom: calc(var(--taskbar-height) + 8px);
+        width: auto;
+        max-height: calc(100vh - var(--taskbar-height) - 24px);
+        padding: 10px;
+        overflow: auto;
+        transform: translateY(12px);
+      }
+
+      .start-menu.open {
+        transform: translateY(0);
+      }
+
+      .start-search {
+        min-height: 42px;
+      }
+
+      .start-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .start-item {
+        min-height: 76px;
+        padding: 10px 6px;
+      }
+
+      .start-item img {
+        width: 28px;
+        height: 28px;
+      }
+
+      .clock-flyout {
+        left: 8px;
+        right: 8px;
+        bottom: calc(var(--taskbar-height) + 8px);
+        width: auto;
+        min-height: 0;
+        max-height: calc(100vh - var(--taskbar-height) - 24px);
+        padding: 12px;
+        gap: 12px;
+        overflow: auto;
+      }
+
+      .calendar-body {
+        min-height: 238px;
+      }
+
+      .calendar-grid {
+        min-height: 196px;
+      }
+
+      .calendar-grid.days {
+        grid-template-rows: repeat(6, minmax(0, 30px));
+      }
+
+      .calendar-label {
+        min-width: 82px;
+        padding: 0 6px;
+        font-size: 0.84rem;
+      }
+
+      .calendar-label.calendar-year {
+        min-width: 92px;
+      }
+
+      .menu-flyout {
+        max-width: calc(100vw - 16px);
+      }
+
+      .taskbar {
+        min-height: var(--taskbar-height);
+        padding: 6px 8px;
+        gap: 8px;
+        align-items: stretch;
+      }
+
+      .taskbar-center {
+        gap: 5px;
+        overflow: hidden;
+      }
+
+      .taskbar-tray {
+        gap: 4px;
+      }
+
+      .taskbar-btn,
+      .tray-btn,
+      .clock-btn,
+      .task-btn {
+        min-height: 44px;
+        border-radius: 12px;
+      }
+
+      .taskbar-btn,
+      .tray-btn {
+        min-width: 44px;
+        padding: 0 8px;
+      }
+
+      .theme-btn {
+        min-width: 44px;
+      }
+
+      .theme-btn span {
+        display: none;
+      }
+
+      #volumeBtn {
+        display: none;
+      }
+
+      .clock-btn {
+        width: 72px;
+        min-width: 72px;
+        flex-basis: 72px;
+        padding: 5px 6px;
+      }
+
+      .clock-btn strong {
+        font-size: 0.78rem;
+      }
+
+      .clock-btn span {
+        font-size: 0.64rem;
+      }
+
+      .taskbar-running {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .task-btn {
+        max-width: 48px;
+        min-width: 44px;
+        padding: 0 8px;
+      }
+
+      .task-btn span {
+        display: none;
+      }
+
+      .portfolio-overlay-head {
+        min-height: 48px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .desktop-icons,
+      .entry-grid.large,
+      .entry-grid.medium {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .taskbar-btn[data-pin="terminal"],
+      .taskbar-btn[data-pin="notepad"] {
+        display: none;
+      }
+
+      .clock-btn {
+        width: 64px;
+        min-width: 64px;
+        flex-basis: 64px;
       }
     }
 
@@ -2083,9 +2476,17 @@
         transform: rotate(360deg);
       }
     }
+
+    @keyframes mobileBootFailsafe {
+      to {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+    }
   </style>
 </head>
-<body>
+<body data-theme="dark">
   <section class="boot" id="boot">
     <img src="Assets/Windows.png" alt="Windows logo">
     <div class="spin" aria-hidden="true"></div>
@@ -2318,7 +2719,8 @@
         id: "portfolio",
         title: "Projects",
         items: [
-          { id: "portfolio-exe", title: "Portfolio.exe", type: "portfolio", icon: "terminal", path: "Projects/demo.html", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" }
+          { id: "portfolio-exe", title: "Portfolio.exe", type: "portfolio", icon: "terminal", path: "Projects/demo.html", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" },
+          { id: "portfolio-atlas-preview", title: "Project Atlas Preview.exe", type: "portfolio", icon: "terminal", path: "ProjectsV2/index.html", modified: FIXED_MODIFIED, size: "Pending", typeLabel: "Application" }
         ]
       },
       games: {
@@ -2681,9 +3083,9 @@
 
     function loadTheme() {
       try {
-        return localStorage.getItem("portfolio-theme") || "light";
+        return localStorage.getItem("portfolio-theme") || "dark";
       } catch (error) {
-        return "light";
+        return "dark";
       }
     }
 
@@ -2713,11 +3115,11 @@
 
     function esc(value) {
       return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function iconPath(key) {
@@ -2820,9 +3222,30 @@
       }).format(new Date(value));
     }
 
+    function desktopIconRowHeight() {
+      if (state.desktopView === "medium") return 90;
+      if (state.desktopView === "large") return 104;
+      return 98;
+    }
+
+    function updateDesktopIconGrid() {
+      if (!refs.icons) return;
+      if (mobile()) {
+        refs.icons.style.removeProperty("--desktop-icon-rows");
+        return;
+      }
+
+      const rowHeight = desktopIconRowHeight();
+      const gap = 8;
+      const availableHeight = Math.max(rowHeight, refs.icons.getBoundingClientRect().height);
+      const rows = Math.max(1, Math.floor((availableHeight + gap) / (rowHeight + gap)));
+      refs.icons.style.setProperty("--desktop-icon-rows", String(rows));
+    }
+
     function renderDesktopIcons() {
       const items = sortFolderItems(desktopItems(), state.desktopSort);
       refs.icons.className = `desktop-icons view-${state.desktopView}`;
+      updateDesktopIconGrid();
       refs.icons.innerHTML = items.map((item) => `
         <button class="desktop-icon ${isSelected("desktop", item.id) ? "selected" : ""}" type="button" data-scope="desktop" data-item-id="${item.id}">
           ${iconMarkup(item.icon, item.title)}
@@ -3013,6 +3436,13 @@
         properties: [440, 330],
         personalize: [760, 520]
       };
+      if (mobile()) {
+        const gap = 8;
+        const bottom = currentTaskbarBottom();
+        const w = Math.max(300, window.innerWidth - gap * 2);
+        const h = Math.max(260, window.innerHeight - bottom - gap);
+        return { x: gap, y: gap, w, h };
+      }
       const count = state.windows.length;
       const preset = presets[kind] || presets.explorer;
       const w = Math.min(preset[0], Math.max(380, window.innerWidth - 60));
@@ -3025,11 +3455,13 @@
     function maximizedRect() {
       const gap = 8;
       const bottom = currentTaskbarBottom();
+      const minW = mobile() ? 300 : 420;
+      const minH = mobile() ? 260 : 320;
       return {
         x: gap,
         y: gap,
-        w: Math.max(420, window.innerWidth - gap * 2),
-        h: Math.max(320, window.innerHeight - bottom - gap)
+        w: Math.max(minW, window.innerWidth - gap * 2),
+        h: Math.max(minH, window.innerHeight - bottom - gap)
       };
     }
 
@@ -4188,9 +4620,9 @@
     function normalizeUrl(value) {
       const input = value.trim();
       if (!input || input.toLowerCase() === "home") return HOME;
-      if (/^[A-Za-z]:[\\/]/.test(input)) return input.replaceAll("\\", "/");
-      if (/^(\/|\.\/|\.\.\/)/.test(input)) return input.replaceAll("\\", "/");
-      if (/[\\/]/.test(input)) return input.replaceAll("\\", "/");
+      if (/^[A-Za-z]:[\\/]/.test(input)) return input.replace(/\\/g, "/");
+      if (/^(\/|\.\/|\.\.\/)/.test(input)) return input.replace(/\\/g, "/");
+      if (/[\\/]/.test(input)) return input.replace(/\\/g, "/");
       if (/\.(html?|pdf|txt|md|jpe?g|png|gif|webp|svg)$/i.test(input)) return input;
       if (/^https?:\/\//i.test(input)) return input;
       if (/^[\w.-]+\.[a-z]{2,}([/?#].*)?$/i.test(input)) return `https://${input}`;
@@ -4903,6 +5335,7 @@
     }
 
     function onResize() {
+      updateDesktopIconGrid();
       state.windows.forEach((win) => {
         if (!win.maximized) {
           win.w = Math.min(win.w, window.innerWidth - 20);
@@ -4944,7 +5377,6 @@
       renderAssistantLog();
       updateClock();
       bindEvents();
-      if (mobile()) return;
       setTimeout(() => {
         refs.desktop.classList.add("ready");
         refs.boot.classList.add("fade");

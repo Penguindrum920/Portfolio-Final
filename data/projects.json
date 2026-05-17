@@ -1,20 +1,68 @@
 [
   {
     "name": "AniVerse",
-    "description": "An anime-inspired interactive web experience with cinematic sections and dynamic visuals.",
-    "stack": ["HTML", "CSS", "JavaScript"],
-    "role": "Design and frontend implementation"
-  },
-  {
-    "name": "Pegasus",
-    "description": "A project landing experience with custom section transitions and image-driven storytelling.",
-    "stack": ["JavaScript", "CSS"],
-    "role": "UI architecture and motion logic"
+    "aliases": ["anime project", "anime platform", "MAL alternative", "IMDb for anime"],
+    "category": ["web", "ai", "anime", "recommendation"],
+    "description": "AniVerse is an anime discovery and tracking platform concept built as an IMDb or MyAnimeList-style alternative for anime.",
+    "problem": "Anime search often depends too much on exact titles. AniVerse is designed to support richer discovery through tags and intent.",
+    "features": [
+      "LLM-assisted anime search recommendations based on names and tags",
+      "Agentic AI actions such as adding an anime to a list and giving ratings",
+      "Cinematic, image-driven project showcase in the portfolio",
+      "Backend-oriented architecture using FastAPI, Uvicorn, ChromaDB, Pydantic, and sentence-transformers"
+    ],
+    "stack": ["HTML", "CSS", "JavaScript", "Python", "FastAPI", "Uvicorn", "Nginx", "Docker", "SQLite", "ChromaDB", "sentence-transformers", "Pydantic", "Pandas"],
+    "role": "Designed the product concept, frontend experience, and AI-assisted interaction flow.",
+    "links": {
+      "live": "https://aniverse-tau.vercel.app/"
+    },
+    "portfolio_assets": [
+      "Projects/AniVerse/Main.png",
+      "Projects/AniVerse/demo.html"
+    ]
   },
   {
     "name": "Parkinson Disease Assessment Portal",
-    "description": "Healthcare-focused portal concept for symptom assessment and structured reporting.",
-    "stack": ["Web", "ML concepts"],
-    "role": "Product concept and implementation"
+    "aliases": ["Parkinson Disease Assesment Portal", "Parkinson portal", "healthcare portal", "medical assessment portal"],
+    "category": ["health", "ai", "machine learning", "rag", "medical"],
+    "description": "A healthcare-focused portal concept for Parkinson's disease assessment using pretrained LLMs, transformers, classical ML models, and RAG-backed reporting.",
+    "problem": "The portal is intended to help structure Parkinson's symptom assessment and generate clearer, context-aware reports.",
+    "features": [
+      "Pretrained medical and language-model based assessment workflow",
+      "Digital twin concept for patient-specific personalization",
+      "RAG using PPMI dataset context for reports and insights",
+      "Model stack including PubMedBERT, BioGPT, Clinical-T5, LightGBM, XGBoost, and SVM"
+    ],
+    "stack": ["HTML", "CSS", "JavaScript", "Python", "PyTorch", "Flask", "Transformers", "Hugging Face", "PubMedBERT", "BioGPT", "Clinical-T5", "LightGBM", "XGBoost", "SVM", "CUDA 11.8", "Pandas", "Scikit-learn", "NumPy"],
+    "role": "Built the product concept and implementation direction for a medical AI assessment workflow.",
+    "links": {
+      "hugging_face": "https://huggingface.co/spaces/Penguindrum920/Parkinson_Disease_Assesment_Portal"
+    },
+    "portfolio_assets": [
+      "Projects/Parkinson Disease Assesment Portal/Main.png",
+      "Projects/Parkinson Disease Assesment Portal/demo.html"
+    ]
+  },
+  {
+    "name": "Pegasus",
+    "aliases": ["club website", "music particles", "three.js music visualizer"],
+    "category": ["web", "creative coding", "design", "three.js"],
+    "description": "Pegasus is a club website and creative design showcase with interactive visuals and music-reactive particles.",
+    "problem": "The project demonstrates expressive frontend design and motion-heavy interaction for a club-style web experience.",
+    "features": [
+      "Three.js-driven visual experience",
+      "GSAP shader and particle work",
+      "Music-reactive particles where users can select music and see unique visual reactions",
+      "Animated frontend flow using React, Vite, Tailwind CSS, Framer Motion, and Lenis"
+    ],
+    "stack": ["HTML", "CSS", "JavaScript", "React", "Vite", "Tailwind CSS", "Three.js", "GSAP", "@gsap/react", "Framer Motion", "Lenis"],
+    "role": "Designed and implemented the creative frontend, interaction model, and motion logic.",
+    "links": {
+      "live": "https://pegasus-rvitm.vercel.app/"
+    },
+    "portfolio_assets": [
+      "Projects/Pegasus/Main.png",
+      "Projects/Pegasus/demo.html"
+    ]
   }
 ]

@@ -183,7 +183,9 @@ body,
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 0.9rem;
-  line-height: 1.4;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .bubble.user {

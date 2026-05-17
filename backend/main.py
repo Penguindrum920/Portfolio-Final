@@ -43,11 +43,12 @@ client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 APP_SYSTEM_PROMPT = (
     "You are Aditya Kaushik's personal assistant embedded in his portfolio OS. "
-    "You are concise, direct, and slightly witty. Avoid generic AI phrases like 'As an AI' "
-    "or overly enthusiastic language. Speak naturally and confidently, like a developer "
-    "explaining their work. Format responses in clean human-readable text with short bullets or short paragraphs. "
-    "Do not dump raw source text, OCR junk, or markdown heading syntax. Only answer based on provided context. "
-    "If the answer is missing from context, reply exactly: I don't have that information yet."
+    "Answer only questions about Aditya, his portfolio, projects, skills, contact details, "
+    "and the portfolio OS interface. You are concise, direct, and naturally confident. "
+    "Do not say 'As an AI'. Do not invent dates, rankings, credentials, private details, "
+    "or implementation claims that are not in the provided context. Format responses as short "
+    "paragraphs or clean bullets. Do not dump raw source text, OCR junk, or markdown heading syntax. "
+    "If the answer is missing or unrelated to the portfolio, reply exactly: I don't have that information yet."
 )
 
 ACTION_TARGETS = {
@@ -87,8 +88,37 @@ PROJECT_FIELD_ALIASES = {
     "web": ["web", "frontend", "front end", "backend", "full stack", "react", "javascript", "html", "css", "node", "express"],
     "ai": ["ai", "ml", "machine learning", "nlp", "llm", "rag", "tensorflow", "pytorch", "opencv"],
     "data": ["data", "database", "db", "sql", "postgres", "mongodb", "analytics"],
-    "health": ["health", "medical", "healthcare", "disease", "clinical"]
+    "health": ["health", "medical", "healthcare", "disease", "clinical"],
+    "creative": ["creative", "design", "three", "three.js", "music", "animation", "motion", "gsap", "particles"]
 }
+
+SKILL_QUERY_TERMS = {
+    "skill", "skills", "stack", "tech", "technology", "technologies", "language", "languages",
+    "framework", "frameworks", "tool", "tools", "database", "databases", "ml", "ai", "web"
+}
+
+CONTACT_QUERY_TERMS = {
+    "contact", "email", "mail", "gmail", "github", "linkedin", "phone", "whatsapp", "social", "socials"
+}
+
+PORTFOLIO_QUERY_TERMS = {
+    "portfolio", "website", "desktop", "windows", "os", "interface", "ui", "feature", "features",
+    "taskbar", "start", "terminal", "notepad", "browser", "chrome", "store", "recycle", "wallpaper",
+    "calendar", "dark", "light", "mobile", "phone", "games", "snake", "minesweeper", "aditya ai",
+    "assistant", "chatbot"
+}
+
+RAG_SCOPE_TERMS = (
+    SKILL_QUERY_TERMS
+    | CONTACT_QUERY_TERMS
+    | PORTFOLIO_QUERY_TERMS
+    | {
+        "aditya", "kaushik", "about", "resume", "cv", "education", "btech", "college",
+        "student", "bengaluru", "location", "based", "background", "experience", "paper",
+        "publication", "hobby", "hobbies", "anime", "manga", "project", "projects",
+        "aniverse", "pegasus", "parkinson", "healthcare", "medical", "three.js", "fastapi"
+    }
+)
 
 SESSION_STATE: dict[str, Any] = {
     "last_project_list": []
@@ -147,6 +177,19 @@ def pretty_text(text: str) -> str:
     return cleaned.strip()
 
 
+def format_sectioned(title: str, sections: list[tuple[str, str | list[str]]]) -> str:
+    lines = [title.strip()]
+    for heading, content in sections:
+        if not content:
+            continue
+        lines.extend(["", heading.strip()])
+        if isinstance(content, list):
+            lines.extend(f"- {str(item).strip()}" for item in content if str(item).strip())
+        else:
+            lines.append(str(content).strip())
+    return pretty_text("\n".join(lines))
+
+
 def format_project_line(project: dict[str, Any], index: int) -> str:
     name = str(project.get("name", f"Project {index}"))
     desc = str(project.get("description", "No description yet.")).strip()
@@ -163,16 +206,115 @@ def safe_read_text(path: Path) -> str:
     return ""
 
 
+def contains_any(message: str, terms: set[str] | list[str]) -> bool:
+    lower = message.lower()
+    return any(term in lower for term in terms)
+
+
+def in_portfolio_scope(message: str) -> bool:
+    return contains_any(message, RAG_SCOPE_TERMS)
+
+
+def markdown_sections(text: str) -> dict[str, list[str]]:
+    sections: dict[str, list[str]] = {}
+    current = ""
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if line.startswith("## "):
+            current = line[3:].strip()
+            sections[current] = []
+            continue
+        if current and line:
+            sections[current].append(line)
+    return sections
+
+
+def clean_bullet(line: str) -> str:
+    return re.sub(r"^[-*]\s*", "", line).strip()
+
+
+def format_project_detail(project: dict[str, Any]) -> str:
+    name = str(project.get("name", "Project"))
+    desc = str(project.get("description", "No description yet.")).strip()
+    problem = str(project.get("problem", "")).strip()
+    role = str(project.get("role", "Not specified")).strip()
+    stack = project.get("stack", [])
+    stack_text = ", ".join(stack) if isinstance(stack, list) and stack else str(stack or "Not listed")
+    features = project.get("features", [])
+    links = project.get("links", {})
+
+    sections: list[tuple[str, str | list[str]]] = [
+        ("Overview", desc),
+        ("Why It Matters", problem),
+    ]
+    if isinstance(features, list) and features:
+        sections.append(("Key Features", [str(feature) for feature in features[:5]]))
+    sections.extend([
+        ("Tech Stack", stack_text),
+        ("Aditya's Role", role),
+    ])
+    if isinstance(links, dict) and links:
+        link_text = ", ".join(f"{key}: {value}" for key, value in links.items())
+        sections.append(("Links", link_text))
+    return format_sectioned(name, sections)
+
+
+def project_names(project: dict[str, Any]) -> list[str]:
+    names = [str(project.get("name", ""))]
+    aliases = project.get("aliases", [])
+    if isinstance(aliases, list):
+        names.extend(str(alias) for alias in aliases)
+    return [name for name in names if name]
+
+
+def find_project_in_message(message: str, projects: list[dict[str, Any]], allow_fuzzy: bool = False) -> dict[str, Any] | None:
+    lower = message.lower()
+    for project in projects:
+        for name in project_names(project):
+            if name.lower() in lower:
+                return project
+
+    if not allow_fuzzy:
+        return None
+
+    tokens = set(tokenize(message))
+    best: tuple[float, dict[str, Any] | None] = (0.0, None)
+    for project in projects:
+        haystack = " ".join([
+            " ".join(project_names(project)),
+            str(project.get("description", "")),
+            str(project.get("problem", "")),
+            str(project.get("role", "")),
+            " ".join(project.get("category", [])) if isinstance(project.get("category"), list) else "",
+            " ".join(project.get("stack", [])) if isinstance(project.get("stack"), list) else "",
+            " ".join(project.get("features", [])) if isinstance(project.get("features"), list) else ""
+        ])
+        overlap = len(tokens & set(tokenize(haystack)))
+        if overlap > best[0]:
+            best = (float(overlap), project)
+    return best[1] if best[0] >= 2 else None
+
+
 def about_response(message: str) -> str | None:
     lower = message.lower()
     about_triggers = [
-        "about",
         "about me",
         "about aditya",
         "who are you",
+        "who is aditya",
         "introduce yourself",
         "introduce aditya",
-        "tell me about yourself"
+        "tell me about yourself",
+        "aditya kaushik",
+        "background",
+        "education",
+        "study",
+        "college",
+        "where is aditya",
+        "location",
+        "based",
+        "hobby",
+        "hobbies"
     ]
     is_about_prompt = lower.strip() in {"about", "about me", "who are you"} or any(trigger in lower for trigger in about_triggers)
     if not is_about_prompt:
@@ -191,17 +333,32 @@ def about_response(message: str) -> str | None:
     github = re.search(r"GitHub:\s*(.+)", contact_text)
     linkedin = re.search(r"LinkedIn:\s*(.+)", contact_text)
 
-    lines = [
-        "Here is a quick About Me summary:",
-        f"- {summary}",
-        "- Core focus: full-stack builds, UI systems, and practical AI integration.",
-        "- Projects include AniVerse, Pegasus, and a Parkinson Disease Assessment Portal."
+    highlights = [
+        "Core focus: full-stack builds, machine learning applications, UI systems, and practical AI integration.",
+        "Current interest: combining ML projects with creative web technologies like Three.js.",
+        "Projects include AniVerse, Pegasus, and a Parkinson Disease Assessment Portal."
     ]
+    if "education" in lower or "study" in lower or "college" in lower:
+        highlights.append("Education listed in the portfolio: B.Tech in Computer Science, ongoing.")
+    if "where" in lower or "location" in lower or "based" in lower:
+        highlights.append("Location listed in the portfolio: Bengaluru.")
+    if "hobb" in lower or "anime" in lower or "manga" in lower or "game" in lower:
+        highlights.append("Hobbies listed in the portfolio: anime, manga, and video games.")
+
+    contact = []
     if github:
-        lines.append(f"- GitHub: {github.group(1).strip()}")
+        contact.append(f"GitHub: {github.group(1).strip()}")
     if linkedin:
-        lines.append(f"- LinkedIn: {linkedin.group(1).strip()}")
-    return "\n".join(lines)
+        contact.append(f"LinkedIn: {linkedin.group(1).strip()}")
+
+    return format_sectioned(
+        "About Aditya",
+        [
+            ("Summary", summary),
+            ("Highlights", highlights),
+            ("Links", contact),
+        ],
+    )
 
 
 def resolve_followup_project_reference(message: str, projects: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -257,7 +414,10 @@ def score_project_for_field(project: dict[str, Any], field: str, query_tokens: s
     text = " ".join([
         str(project.get("name", "")),
         str(project.get("description", "")),
+        str(project.get("problem", "")),
         str(project.get("role", "")),
+        " ".join(project.get("category", [])) if isinstance(project.get("category"), list) else str(project.get("category", "")),
+        " ".join(project.get("features", [])) if isinstance(project.get("features"), list) else str(project.get("features", "")),
         " ".join(project.get("stack", [])) if isinstance(project.get("stack"), list) else str(project.get("stack", ""))
     ]).lower()
     aliases = PROJECT_FIELD_ALIASES.get(field, [])
@@ -268,28 +428,35 @@ def score_project_for_field(project: dict[str, Any], field: str, query_tokens: s
 
 def projects_response(message: str, projects: list[dict[str, Any]]) -> str | None:
     lower = message.lower()
-    if "project" not in lower and "portfolio" not in lower and "work" not in lower:
+    project_terms = {"project", "projects", "work", "built", "made", "created", "aniverse", "pegasus", "parkinson"}
+    has_project_term = contains_any(message, project_terms)
+    project = find_project_in_message(message, projects, allow_fuzzy=has_project_term)
+    if not has_project_term and project is None:
         return None
 
     if not projects:
         return "I don't have that information yet."
 
-    is_detail_ask = ("elaborate" in lower or "detail" in lower or "tell me about" in lower or "more about" in lower or "explain" in lower)
+    is_detail_ask = (
+        "elaborate" in lower
+        or "detail" in lower
+        or "tell me about" in lower
+        or "more about" in lower
+        or "explain" in lower
+        or "tech" in lower
+        or "stack" in lower
+        or "feature" in lower
+        or project is not None
+    )
 
     # Follow-up detail ask by remembered index/name.
     if is_detail_ask:
         followup = resolve_followup_project_reference(message, projects)
         if followup is not None:
-            stack = followup.get("stack", [])
-            stack_text = ", ".join(stack) if isinstance(stack, list) and stack else "Not listed"
-            role = followup.get("role", "Not specified")
-            desc = followup.get("description", "No description yet.")
-            return pretty_text(
-                f"{followup.get('name')}\n"
-                f"What it is: {desc}\n"
-                f"Stack: {stack_text}\n"
-                f"Role: {role}"
-            )
+            return format_project_detail(followup)
+
+    if project is not None:
+        return format_project_detail(project)
 
     # Detail ask: "elaborate on X" or "tell me about X"
     for project in projects:
@@ -297,16 +464,7 @@ def projects_response(message: str, projects: list[dict[str, Any]]) -> str | Non
         if not name:
             continue
         if is_detail_ask and name in lower:
-            stack = project.get("stack", [])
-            stack_text = ", ".join(stack) if isinstance(stack, list) and stack else "Not listed"
-            role = project.get("role", "Not specified")
-            desc = project.get("description", "No description yet.")
-            return pretty_text(
-                f"{project.get('name')}\n"
-                f"What it is: {desc}\n"
-                f"Stack: {stack_text}\n"
-                f"Role: {role}"
-            )
+            return format_project_detail(project)
 
     field = classify_requested_field(message)
     query_tokens = set(tokenize(message))
@@ -321,19 +479,210 @@ def projects_response(message: str, projects: list[dict[str, Any]]) -> str | Non
         picks = [entry for _, entry in ranked[:5]]
         if not picks:
             return "I don't have that information yet."
-        lines = [f"Projects related to {inferred_field}:"]
-        for index, project in enumerate(picks, start=1):
-            lines.append(format_project_line(project, index))
         SESSION_STATE["last_project_list"] = [str(project.get("name", "")) for project in picks if project.get("name")]
-        lines.append("Want me to elaborate on any one? Say: elaborate on <project name>.")
-        return "\n".join(lines)
+        project_lines = [format_project_line(project, index) for index, project in enumerate(picks, start=1)]
+        return format_sectioned(
+            f"Projects Related To {inferred_field.title()}",
+            [
+                ("Matches", project_lines),
+                ("Next Step", "Ask for a project name if you want the stack, features, and role."),
+            ],
+        )
 
-    lines = ["Here are my projects in short:"]
-    for index, project in enumerate(projects, start=1):
-        lines.append(format_project_line(project, index))
     SESSION_STATE["last_project_list"] = [str(project.get("name", "")) for project in projects if project.get("name")]
-    lines.append("If you want, I can elaborate on any one. Say: elaborate on <project name>.")
-    return "\n".join(lines)
+    project_lines = [format_project_line(project, index) for index, project in enumerate(projects, start=1)]
+    return format_sectioned(
+        "Aditya's Projects",
+        [
+            ("Overview", project_lines),
+            ("Next Step", "Ask for AniVerse, Pegasus, or Parkinson Disease Assessment Portal for details."),
+        ],
+    )
+
+
+def skills_response(message: str) -> str | None:
+    lower = message.lower()
+    skills_text = safe_read_text(DATA_DIR / "skills.md")
+    if not skills_text:
+        return None
+
+    sections = markdown_sections(skills_text)
+    skill_to_section: dict[str, tuple[str, str]] = {}
+    for section, lines in sections.items():
+        for line in lines:
+            item = clean_bullet(line)
+            if not item or ":" in item:
+                continue
+            skill_to_section[item.lower()] = (item, section)
+
+    explicit_skill = None
+    for skill in sorted(skill_to_section, key=len, reverse=True):
+        if re.search(r"\W", skill):
+            matched = skill in lower
+        else:
+            matched = bool(re.search(rf"\b{re.escape(skill)}\b", lower))
+        if matched:
+            explicit_skill = skill
+            break
+
+    if not contains_any(message, SKILL_QUERY_TERMS) and explicit_skill is None:
+        return None
+
+    if explicit_skill:
+        original, section = skill_to_section[explicit_skill]
+        return format_sectioned(
+            "Skill Match",
+            [
+                ("Result", f"Yes. {original} is listed under {section} in Aditya's portfolio."),
+            ],
+        )
+
+    category_aliases = {
+        "Programming Languages": ["programming", "language", "languages", "code", "coding"],
+        "Machine Learning and AI": ["machine learning", "ml", "ai", "llm", "nlp", "rag", "model"],
+        "Web Development": ["web", "frontend", "front end", "backend", "full stack", "react"],
+        "Data, Database, and Analysis": ["database", "data", "db", "sql", "postgres", "mongodb", "analysis"],
+        "Tools and Technologies": ["tool", "tools", "technology", "technologies", "docker", "git", "deployment"]
+    }
+
+    selected = [
+        section for section, aliases in category_aliases.items()
+        if section in sections and any(alias in lower for alias in aliases)
+    ]
+    if not selected:
+        selected = [
+            "Programming Languages",
+            "Web Development",
+            "Machine Learning and AI",
+            "Data, Database, and Analysis",
+            "Tools and Technologies"
+        ]
+
+    formatted_sections: list[tuple[str, str | list[str]]] = []
+    for section in selected:
+        entries = [clean_bullet(line) for line in sections.get(section, [])]
+        entries = [entry for entry in entries if entry and ":" not in entry][:10]
+        if entries:
+            formatted_sections.append((section, entries))
+    return format_sectioned("Aditya's Skills", formatted_sections) if formatted_sections else "I don't have that information yet."
+
+
+def contact_response(message: str) -> str | None:
+    if not contains_any(message, CONTACT_QUERY_TERMS):
+        return None
+
+    contact_text = safe_read_text(DATA_DIR / "contact.md")
+    if not contact_text:
+        return "I don't have that information yet."
+
+    items = []
+    for line in contact_text.splitlines():
+        cleaned = clean_bullet(line)
+        if ":" in cleaned and not cleaned.startswith("#"):
+            items.append(cleaned)
+
+    lower = message.lower()
+    if "github" in lower:
+        items = [item for item in items if item.lower().startswith("github")]
+    elif "linkedin" in lower:
+        items = [item for item in items if item.lower().startswith("linkedin")]
+    elif "email" in lower or "mail" in lower or "gmail" in lower:
+        items = [item for item in items if "email" in item.lower()]
+    elif "phone" in lower or "whatsapp" in lower:
+        items = [item for item in items if "phone" in item.lower() or "whatsapp" in item.lower()]
+
+    if not items:
+        return "I don't have that information yet."
+    return format_sectioned(
+        "Contact",
+        [
+            ("Portfolio Links", items),
+        ],
+    )
+
+
+def portfolio_response(message: str) -> str | None:
+    lower = message.lower()
+    if not contains_any(message, PORTFOLIO_QUERY_TERMS):
+        return None
+
+    if "aditya ai" in lower or "assistant" in lower or "chatbot" in lower:
+        return format_sectioned(
+            "Aditya AI",
+            [
+                ("Purpose", "Aditya AI is the portfolio assistant. It is meant to answer only from Aditya's portfolio knowledge: about, skills, projects, contact details, and the portfolio UI."),
+                ("Action Commands", [
+                    "open projects",
+                    "open resume",
+                    "open skills",
+                    "play snake",
+                    "play minesweeper",
+                ]),
+            ],
+        )
+
+    if "terminal" in lower or "command" in lower:
+        return format_sectioned(
+            "Portfolio Terminal",
+            [
+                ("Supported Commands", [
+                    "help",
+                    "open about",
+                    "open projects",
+                    "open games",
+                    "open skills",
+                    "open socials",
+                    "open store",
+                    "open recyclebin",
+                    "open chrome",
+                    "open terminal",
+                    "open notepad",
+                    "open adityaai",
+                    "theme dark / theme light",
+                    "time / date",
+                    "clear",
+                    "shutdown",
+                ]),
+            ],
+        )
+
+    if "game" in lower or "snake" in lower or "minesweeper" in lower:
+        return format_sectioned(
+            "Games",
+            [
+                ("Available Games", ["Snake", "Minesweeper"]),
+                ("How They Open", "Both run inside app-style windows through the Games Launcher."),
+            ],
+        )
+
+    if "store" in lower or "recycle" in lower:
+        return format_sectioned(
+            "Store And Recycle Bin",
+            [
+                ("Store", "The portfolio has a Microsoft Store-style app for installing project shortcuts."),
+                ("Recycle Bin", "Installed project apps can be deleted into the Recycle Bin, restored, or permanently emptied."),
+            ],
+        )
+
+    return format_sectioned(
+        "Portfolio OS",
+        [
+            ("Overview", "Aditya's portfolio is a Windows-style desktop simulation in a web page."),
+            ("Main Features", [
+                "Desktop icons and File Explorer windows",
+                "Taskbar and Start menu",
+                "Chrome-like browser",
+                "Terminal and Notepad",
+                "Project showcase",
+                "Games Launcher with Snake and Minesweeper",
+                "Store and Recycle Bin behavior",
+                "Wallpaper personalization",
+                "Calendar flyout",
+                "Dark mode",
+                "Aditya AI",
+            ]),
+        ],
+    )
 
 
 class RagStore:
@@ -345,14 +694,15 @@ class RagStore:
 
     def _hash_docs(self) -> str:
         h = hashlib.sha256()
-        for path in sorted(DATA_DIR.glob("**/*")):
+        paths = list(DATA_DIR.glob("**/*")) + list((ROOT / "About Me").glob("**/*.pdf"))
+        for path in sorted(paths):
             if not path.is_file():
                 continue
-            h.update(path.name.encode("utf-8"))
+            h.update(str(path.relative_to(ROOT)).encode("utf-8"))
             h.update(path.read_bytes())
         return h.hexdigest()
 
-    def _chunk_text(self, text: str, source: str, size: int = 700, overlap: int = 120) -> list[dict[str, str]]:
+    def _chunk_text(self, text: str, source: str, size: int = 560, overlap: int = 120) -> list[dict[str, str]]:
         cleaned = " ".join(text.split())
         if not cleaned:
             return []
@@ -597,14 +947,19 @@ def lexical_query(chunks: list[dict[str, str]], query: str, k: int) -> list[dict
 
     scored: list[tuple[float, dict[str, str]]] = []
     q_set = set(q_tokens)
+    lower_query = query.lower()
     for chunk in chunks:
-        c_tokens = set(tokenize(chunk["text"]))
+        chunk_text = chunk["text"].lower()
+        c_tokens = set(tokenize(chunk_text))
         if not c_tokens:
             continue
         overlap = len(q_set & c_tokens)
         if overlap == 0:
             continue
-        score = (overlap / max(1, len(q_set))) * source_bias(chunk["source"])
+        phrase_hits = sum(1 for token in q_set if token in chunk_text)
+        source_bonus = 0.12 if any(token in chunk["source"].lower() for token in q_set) else 0.0
+        exact_bonus = 0.25 if lower_query and lower_query in chunk_text else 0.0
+        score = ((overlap / max(1, len(q_set))) + phrase_hits * 0.03 + source_bonus + exact_bonus) * source_bias(chunk["source"])
         scored.append((score, chunk))
 
     scored.sort(key=lambda item: item[0], reverse=True)
@@ -722,6 +1077,41 @@ def chat(req: ChatRequest) -> dict[str, Any]:
             "action": "NONE",
             "target": None,
             "sources": ["data/projects.json"]
+        }
+
+    skills = skills_response(message)
+    if skills is not None:
+        return {
+            "message": skills,
+            "action": "NONE",
+            "target": None,
+            "sources": ["data/skills.md"]
+        }
+
+    contact = contact_response(message)
+    if contact is not None:
+        return {
+            "message": contact,
+            "action": "NONE",
+            "target": None,
+            "sources": ["data/contact.md"]
+        }
+
+    portfolio = portfolio_response(message)
+    if portfolio is not None:
+        return {
+            "message": portfolio,
+            "action": "NONE",
+            "target": None,
+            "sources": ["data/portfolio.md"]
+        }
+
+    if not in_portfolio_scope(message):
+        return {
+            "message": "I don't have that information yet.",
+            "action": "NONE",
+            "target": None,
+            "sources": []
         }
 
     key = message.lower()

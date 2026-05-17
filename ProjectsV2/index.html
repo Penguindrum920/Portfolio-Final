@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aditya Project Nexus</title>
+  <style>
+    :root {
+      --bg: #07090f;
+      --panel: rgba(12, 15, 23, 0.78);
+      --panel-solid: #111622;
+      --ink: #f7f1e7;
+      --muted: #9aa7b8;
+      --line: rgba(255, 255, 255, 0.16);
+      --line-strong: rgba(255, 255, 255, 0.3);
+      --accent: #ff7048;
+      --accent-2: #32d3a2;
+      --danger: #ff4f6d;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+      --panel-radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      color-scheme: dark;
+      background: var(--bg);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        linear-gradient(180deg, rgba(7, 9, 15, 0.34), var(--bg) 82%),
+        linear-gradient(115deg, rgba(255, 112, 72, 0.16), transparent 34%),
+        linear-gradient(255deg, rgba(50, 211, 162, 0.12), transparent 38%),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI Variable", "Segoe UI", Inter, system-ui, sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.17;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, #000 0%, transparent 78%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.08;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.44) 0,
+        rgba(255, 255, 255, 0.44) 1px,
+        transparent 1px,
+        transparent 5px
+      );
+    }
+
+    a,
+    button {
+      color: inherit;
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    #field {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #07090f;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 4;
+      width: min(1480px, calc(100% - 28px));
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: 16px 0 34px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 16px;
+      pointer-events: none;
+    }
+
+    .shell a,
+    .shell button,
+    .shell input,
+    .shell .interactive {
+      pointer-events: auto;
+    }
+
+    .topline {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--line);
+      background: rgba(8, 10, 16, 0.72);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      border-radius: var(--panel-radius);
+      padding: 10px 12px;
+    }
+
+    .brand,
+    .status-chip,
+    .exit-btn,
+    .project-tab,
+    .link-btn,
+    .thumb,
+    .metric,
+    .step,
+    .briefing,
+    .display-console {
+      border-radius: var(--panel-radius);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .monogram {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: #07090f;
+      background:
+        linear-gradient(135deg, var(--accent), var(--accent-2));
+      font-weight: 900;
+      letter-spacing: 0;
+      clip-path: polygon(12% 0, 88% 0, 100% 50%, 88% 100%, 12% 100%, 0 50%);
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-copy strong,
+    .brand-copy span {
+      display: block;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .brand-copy strong {
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.92rem;
+    }
+
+    .brand-copy span {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .status-chip {
+      justify-self: center;
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-2);
+      box-shadow: 0 0 18px var(--accent-2);
+      transform: rotate(45deg);
+    }
+
+    .exit-btn {
+      justify-self: end;
+      min-height: 38px;
+      padding: 0 14px;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--ink);
+    }
+
+    .exit-btn:hover {
+      border-color: var(--line-strong);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .nexus {
+      min-height: 680px;
+      display: grid;
+      grid-template-columns: minmax(220px, 270px) minmax(0, 1fr) minmax(330px, 410px);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .project-rail,
+    .briefing,
+    .display-console,
+    .signal-strip {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .project-rail {
+      padding: 12px;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      border-radius: var(--panel-radius);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .project-tab {
+      width: 100%;
+      min-height: 92px;
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 11px;
+      align-items: center;
+      padding: 9px;
+      cursor: pointer;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid transparent;
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+    }
+
+    .project-tab:hover,
+    .project-tab.active {
+      transform: translateX(4px);
+      border-color: color-mix(in srgb, var(--accent) 70%, white 8%);
+      background: color-mix(in srgb, var(--accent) 16%, rgba(255, 255, 255, 0.05));
+    }
+
+    .project-tab img {
+      width: 58px;
+      height: 58px;
+      object-fit: cover;
+      background: #05070b;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+
+    .tab-text {
+      min-width: 0;
+    }
+
+    .tab-text strong,
+    .tab-text span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab-text strong {
+      white-space: nowrap;
+      font-size: 0.98rem;
+    }
+
+    .tab-text span {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+
+    .rail-meta {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.86rem;
+    }
+
+    .display-console {
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+      border-radius: var(--panel-radius);
+      display: grid;
+      grid-template-rows: auto minmax(360px, 1fr) auto;
+    }
+
+    .display-console::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border: 1px solid color-mix(in srgb, var(--accent) 54%, transparent);
+      clip-path: polygon(0 0, 26% 0, 26% 1px, 74% 1px, 74% 0, 100% 0, 100% 28%, calc(100% - 1px) 28%, calc(100% - 1px) 72%, 100% 72%, 100% 100%, 74% 100%, 74% calc(100% - 1px), 26% calc(100% - 1px), 26% 100%, 0 100%, 0 72%, 1px 72%, 1px 28%, 0 28%);
+      opacity: 0.74;
+      pointer-events: none;
+    }
+
+    .console-head {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: clamp(18px, 2.4vw, 28px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .console-title {
+      min-width: 0;
+    }
+
+    .console-title h1 {
+      margin: 8px 0 0;
+      max-width: 760px;
+      font-size: clamp(2.7rem, 6.4vw, 7rem);
+      line-height: 0.86;
+      letter-spacing: 0;
+    }
+
+    .console-title p {
+      max-width: 650px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: clamp(0.96rem, 1.35vw, 1.1rem);
+    }
+
+    .index-readout {
+      flex: 0 0 auto;
+      min-width: 120px;
+      text-align: right;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .index-readout strong {
+      display: block;
+      color: var(--ink);
+      font-size: clamp(2rem, 4vw, 4.8rem);
+      line-height: 0.9;
+    }
+
+    .artifact-stage {
+      position: relative;
+      z-index: 2;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(190px, 0.34fr);
+      gap: 14px;
+      padding: clamp(16px, 2.4vw, 26px);
+      align-items: stretch;
+    }
+
+    .hero-frame {
+      position: relative;
+      min-height: 360px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--panel-radius);
+      background: #06080d;
+    }
+
+    .hero-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.68);
+    }
+
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      min-height: 360px;
+      display: block;
+      object-fit: cover;
+      transform: scale(1.01);
+      transition: opacity 180ms ease, transform 420ms ease;
+    }
+
+    .project-caption {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      padding: 12px 13px;
+      color: var(--ink);
+      line-height: 1.55;
+      background: rgba(5, 7, 12, 0.74);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--panel-radius);
+      backdrop-filter: blur(14px);
+    }
+
+    .artifact-stack {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .side-shot {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--panel-radius);
+      background: #07090f;
+      min-height: 0;
+    }
+
+    .side-shot img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      filter: saturate(1.05) contrast(1.05);
+    }
+
+    .side-shot span {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.66);
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .thumb-strip {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 clamp(16px, 2.4vw, 26px) clamp(16px, 2.4vw, 26px);
+    }
+
+    .thumb {
+      height: 72px;
+      overflow: hidden;
+      padding: 0;
+      cursor: pointer;
+      background: #05070b;
+      border: 1px solid var(--line);
+      opacity: 0.62;
+      transition: opacity 160ms ease, transform 160ms ease, border-color 160ms ease;
+    }
+
+    .thumb:hover,
+    .thumb.active {
+      opacity: 1;
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .briefing {
+      padding: clamp(16px, 2vw, 24px);
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 17px;
+      border-radius: var(--panel-radius);
+    }
+
+    .briefing h2 {
+      margin: 8px 0 0;
+      font-size: clamp(1.8rem, 3.2vw, 3rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .summary,
+    .meta p,
+    .feature-list li {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .summary {
+      margin: 12px 0 0;
+    }
+
+    .meta {
+      padding-top: 15px;
+      border-top: 1px solid var(--line);
+    }
+
+    .meta p {
+      margin: 8px 0 0;
+    }
+
+    .feature-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+    }
+
+    .feature-list li + li {
+      margin-top: 8px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--ink);
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    .chip:nth-child(3n + 1) {
+      border-color: color-mix(in srgb, var(--accent) 62%, white 8%);
+    }
+
+    .chip:nth-child(3n + 2) {
+      border-color: color-mix(in srgb, var(--accent-2) 55%, white 10%);
+    }
+
+    .links {
+      display: grid;
+      gap: 9px;
+      margin-top: auto;
+    }
+
+    .link-btn {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 12px;
+      border: 1px solid color-mix(in srgb, var(--accent) 56%, white 8%);
+      background: color-mix(in srgb, var(--accent) 16%, rgba(255, 255, 255, 0.06));
+      color: var(--ink);
+    }
+
+    .link-btn:hover {
+      background: color-mix(in srgb, var(--accent) 28%, rgba(255, 255, 255, 0.07));
+    }
+
+    .signal-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      border-radius: var(--panel-radius);
+    }
+
+    .metric,
+    .step {
+      background: rgba(255, 255, 255, 0.045);
+      padding: 16px;
+      min-height: 116px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 12px;
+      font-size: clamp(1.45rem, 2.8vw, 2.5rem);
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .metric span:last-child {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.9rem;
+    }
+
+    .process-band {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      pointer-events: none;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      backdrop-filter: blur(18px);
+      pointer-events: auto;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    @media (max-width: 1180px) {
+      .topline,
+      .nexus,
+      .artifact-stage,
+      .signal-strip,
+      .process-band {
+        grid-template-columns: 1fr;
+      }
+
+      .status-chip,
+      .exit-btn {
+        justify-self: stretch;
+        justify-content: center;
+      }
+
+      .project-rail {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .project-rail > .label,
+      .project-rail > .rail-meta {
+        grid-column: 1 / -1;
+      }
+
+      .project-tab:hover,
+      .project-tab.active {
+        transform: translateY(-2px);
+      }
+
+      .artifact-stack {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: none;
+      }
+
+      .side-shot {
+        min-height: 160px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        width: min(100% - 18px, 620px);
+        padding-top: 9px;
+      }
+
+      .topline {
+        gap: 9px;
+      }
+
+      .brand-copy strong,
+      .brand-copy span {
+        white-space: normal;
+      }
+
+      .project-rail,
+      .thumb-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .nexus {
+        min-height: auto;
+      }
+
+      .display-console {
+        grid-template-rows: auto auto auto;
+      }
+
+      .console-head {
+        flex-direction: column;
+      }
+
+      .console-title h1 {
+        font-size: clamp(2.25rem, 16vw, 4.4rem);
+      }
+
+      .index-readout {
+        text-align: left;
+      }
+
+      .artifact-stage {
+        padding: 12px;
+      }
+
+      .hero-frame,
+      .hero-image {
+        min-height: 255px;
+      }
+
+      .artifact-stack {
+        grid-template-columns: 1fr;
+      }
+
+      .project-caption {
+        position: static;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        border-radius: 0;
+      }
+
+      .thumb-strip {
+        padding: 0 12px 12px;
+      }
+
+      .thumb {
+        height: 92px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="field" aria-hidden="true"></canvas>
+
+  <div class="shell">
+    <header class="topline">
+      <a class="brand" href="#nexus" aria-label="Aditya Project Nexus home">
+        <span class="monogram">AK</span>
+        <span class="brand-copy">
+          <strong>Aditya Project Nexus</strong>
+          <span>AI systems, creative frontend, and product-grade interfaces</span>
+        </span>
+      </a>
+
+      <div class="status-chip">
+        <span class="pulse" aria-hidden="true"></span>
+        <span id="statusText">Tracing AniVerse signal</span>
+      </div>
+
+      <button class="exit-btn" id="exitBtn" type="button">Exit to desktop</button>
+    </header>
+
+    <main class="nexus" id="nexus">
+      <nav class="project-rail" aria-label="Project selector">
+        <div class="label">Project channels</div>
+        <button class="project-tab active" type="button" data-project="aniverse">
+          <img src="../Projects/AniVerse/Main.png" alt="">
+          <span class="tab-text">
+            <strong>AniVerse</strong>
+            <span>AI anime discovery</span>
+          </span>
+        </button>
+        <button class="project-tab" type="button" data-project="parkinson">
+          <img src="../Projects/Parkinson Disease Assesment Portal/Main.png" alt="">
+          <span class="tab-text">
+            <strong>Parkinson Portal</strong>
+            <span>Medical AI workflow</span>
+          </span>
+        </button>
+        <button class="project-tab" type="button" data-project="pegasus">
+          <img src="../Projects/Pegasus/Main.png" alt="">
+          <span class="tab-text">
+            <strong>Pegasus</strong>
+            <span>Music reactive web</span>
+          </span>
+        </button>
+        <p class="rail-meta">Each project is treated like a signal in Aditya's build graph: product idea, technical stack, and visual identity working together.</p>
+      </nav>
+
+      <section class="display-console" aria-live="polite">
+        <div class="console-head">
+          <div class="console-title">
+            <span class="label" id="projectKind">AI Discovery System</span>
+            <h1 id="projectTitle">AniVerse</h1>
+            <p id="projectLead">An anime discovery and tracking concept built around richer search, tag intent, and LLM-assisted recommendations.</p>
+          </div>
+          <div class="index-readout">
+            <strong id="projectIndex">01</strong>
+            <span>/ 03 selected</span>
+          </div>
+        </div>
+
+        <div class="artifact-stage">
+          <figure class="hero-frame interactive">
+            <img class="hero-image" id="heroImage" src="../Projects/AniVerse/Main.png" alt="AniVerse project preview">
+            <figcaption class="project-caption" id="projectCaption">A product-style anime showcase focused on discovery, recommendations, and user intent.</figcaption>
+          </figure>
+
+          <div class="artifact-stack">
+            <div class="side-shot">
+              <img id="sideImageA" src="../Projects/AniVerse/Screenshot 2026-03-21 114705.png" alt="">
+              <span>Interface</span>
+            </div>
+            <div class="side-shot">
+              <img id="sideImageB" src="../Projects/AniVerse/Screenshot 2026-03-21 115152.png" alt="">
+              <span>Detail</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="thumb-strip interactive" id="thumbStrip" aria-label="Project screenshots"></div>
+      </section>
+
+      <aside class="briefing">
+        <div>
+          <span class="label">Build brief</span>
+          <h2 id="briefTitle">Discovery that understands intent</h2>
+          <p class="summary" id="projectSummary">AniVerse presents Aditya as a builder who can connect product thinking, frontend polish, and AI-assisted discovery into one coherent experience.</p>
+        </div>
+
+        <section class="meta">
+          <span class="label">Problem space</span>
+          <p id="projectProblem">Anime search often depends too much on exact titles. AniVerse reframes discovery around tags, taste, and intent.</p>
+        </section>
+
+        <section class="meta">
+          <span class="label">Signature moves</span>
+          <ul class="feature-list" id="featureList"></ul>
+        </section>
+
+        <section class="meta">
+          <span class="label">Stack signal</span>
+          <div class="chip-row" id="stackList"></div>
+        </section>
+
+        <div class="links" id="projectLinks"></div>
+      </aside>
+    </main>
+
+    <footer>
+      <section class="signal-strip" aria-label="Portfolio strengths">
+        <article class="metric">
+          <span class="label">Identity</span>
+          <strong>AI + UX</strong>
+          <span>Model-backed workflows shaped into readable interfaces.</span>
+        </article>
+        <article class="metric">
+          <span class="label">Range</span>
+          <strong>3 lanes</strong>
+          <span>Consumer discovery, medical intelligence, and creative motion.</span>
+        </article>
+        <article class="metric">
+          <span class="label">Execution</span>
+          <strong>Full-stack</strong>
+          <span>Frontend, backend, deployment, data, and AI tooling.</span>
+        </article>
+        <article class="metric">
+          <span class="label">Taste</span>
+          <strong>Polished</strong>
+          <span>Visual systems that make technical work feel intentional.</span>
+        </article>
+      </section>
+
+      <section class="process-band" aria-label="Build pattern">
+        <article class="step">
+          <strong>Product angle first</strong>
+          <p>Each project starts from a concrete user workflow instead of a technology demo.</p>
+        </article>
+        <article class="step">
+          <strong>Technical depth made visible</strong>
+          <p>The interface exposes why the stack matters without making visitors decode implementation notes.</p>
+        </article>
+        <article class="step">
+          <strong>Motion with purpose</strong>
+          <p>Animation and interaction are used to create memory, pacing, and personality.</p>
+        </article>
+      </section>
+    </footer>
+  </div>
+
+  <script>
+    const projects = {
+      aniverse: {
+        index: "01",
+        title: "AniVerse",
+        kind: "AI Discovery System",
+        status: "Tracing AniVerse signal",
+        brief: "Discovery that understands intent",
+        lead: "An anime discovery and tracking concept built around richer search, tag intent, and LLM-assisted recommendations.",
+        summary: "AniVerse presents Aditya as a builder who can connect product thinking, frontend polish, and AI-assisted discovery into one coherent experience.",
+        problem: "Anime search often depends too much on exact titles. AniVerse reframes discovery around tags, taste, and intent.",
+        caption: "A product-style anime showcase focused on discovery, recommendations, and user intent.",
+        accent: "#ff7048",
+        accent2: "#32d3a2",
+        scene: [-0.74, -0.16, 0.46],
+        images: [
+          "../Projects/AniVerse/Main.png",
+          "../Projects/AniVerse/Screenshot 2026-03-21 114705.png",
+          "../Projects/AniVerse/Screenshot 2026-03-21 115152.png",
+          "../Projects/AniVerse/Screenshot 2026-03-21 115217.png"
+        ],
+        features: [
+          "LLM-assisted recommendations from names, tags, and intent",
+          "Agentic AI actions for list updates and ratings",
+          "Backend-oriented architecture with retrieval and structured app logic"
+        ],
+        stack: ["FastAPI", "ChromaDB", "Pydantic", "SQLite", "JavaScript", "Docker"],
+        links: [
+          ["Open live project", "https://aniverse-tau.vercel.app/"],
+          ["Open original case page", "../Projects/AniVerse/demo.html"]
+        ]
+      },
+      parkinson: {
+        index: "02",
+        title: "Parkinson Portal",
+        kind: "Medical AI Workflow",
+        status: "Mapping clinical pipeline",
+        brief: "Structured medical intelligence",
+        lead: "A healthcare-focused workflow for Parkinson's disease assessment, report generation, and RAG-backed clinical context.",
+        summary: "This project shows Aditya's ability to handle a heavier AI problem space with model choices, reporting, and healthcare context.",
+        problem: "Clinical assessment needs structure, traceable context, and clearer reporting. The portal explores how AI can support that workflow.",
+        caption: "A serious medical AI interface with reporting, model context, and patient-specific assessment ideas.",
+        accent: "#a6e85f",
+        accent2: "#f0c64a",
+        scene: [0.18, -0.58, 0.58],
+        images: [
+          "../Projects/Parkinson Disease Assesment Portal/Main.png",
+          "../Projects/Parkinson Disease Assesment Portal/Screenshot 2026-03-21 111716.png",
+          "../Projects/Parkinson Disease Assesment Portal/Screenshot 2026-03-21 113537.png",
+          "../Projects/Parkinson Disease Assesment Portal/Screenshot 2026-03-21 113607.png"
+        ],
+        features: [
+          "RAG reporting with PPMI dataset context",
+          "Transformer and classical ML model stack",
+          "Digital twin concept for patient-specific personalization"
+        ],
+        stack: ["PyTorch", "Transformers", "Hugging Face", "Flask", "XGBoost", "Scikit-learn"],
+        links: [
+          ["Open Hugging Face Space", "https://huggingface.co/spaces/Penguindrum920/Parkinson_Disease_Assesment_Portal"],
+          ["Open original case page", "../Projects/Parkinson Disease Assesment Portal/demo.html"]
+        ]
+      },
+      pegasus: {
+        index: "03",
+        title: "Pegasus",
+        kind: "Creative Frontend Engine",
+        status: "Tuning motion field",
+        brief: "Motion-led brand experience",
+        lead: "A club website and creative design showcase with Three.js visuals, GSAP motion, and music-reactive particles.",
+        summary: "Pegasus shows Aditya's creative frontend side: interaction design, motion systems, shader work, and polished visual execution.",
+        problem: "A club-style web experience needs energy and identity. Pegasus uses motion and audio-reactive visuals to make the page feel alive.",
+        caption: "An expressive frontend build where sound, particles, and scroll motion create the project identity.",
+        accent: "#58a6ff",
+        accent2: "#ff7ab6",
+        scene: [0.72, 0.02, 0.38],
+        images: [
+          "../Projects/Pegasus/Main.png",
+          "../Projects/Pegasus/Screenshot 2026-03-21 114224.png",
+          "../Projects/Pegasus/Screenshot 2026-03-21 114313.png",
+          "../Projects/Pegasus/Screenshot 2026-03-21 114605.png"
+        ],
+        features: [
+          "Three.js-driven visual experience",
+          "Music-reactive particle system",
+          "React, GSAP, Framer Motion, Lenis, and Tailwind flow"
+        ],
+        stack: ["React", "Vite", "Three.js", "GSAP", "Framer Motion", "Tailwind CSS"],
+        links: [
+          ["Open live project", "https://pegasus-rvitm.vercel.app/"],
+          ["Open original case page", "../Projects/Pegasus/demo.html"]
+        ]
+      }
+    };
+
+    const projectKeys = Object.keys(projects);
+    const tabs = [...document.querySelectorAll(".project-tab")];
+    const thumbStrip = document.getElementById("thumbStrip");
+    const featureList = document.getElementById("featureList");
+    const stackList = document.getElementById("stackList");
+    const projectLinks = document.getElementById("projectLinks");
+    const heroImage = document.getElementById("heroImage");
+    const sideImageA = document.getElementById("sideImageA");
+    const sideImageB = document.getElementById("sideImageB");
+    const canvas = document.getElementById("field");
+    const ctx = canvas.getContext("2d");
+    const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+    const nodeHits = [];
+    const sparks = [];
+    let activeProject = "aniverse";
+    let activeImage = 0;
+    let hoverProject = "";
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function setText(id, value) {
+      document.getElementById(id).textContent = value;
+    }
+
+    function renderList(host, items, template) {
+      host.innerHTML = items.map(template).join("");
+    }
+
+    function selectProject(key, imageIndex = 0) {
+      const project = projects[key];
+      if (!project) return;
+      activeProject = key;
+      activeImage = Math.max(0, Math.min(imageIndex, project.images.length - 1));
+
+      document.documentElement.style.setProperty("--accent", project.accent);
+      document.documentElement.style.setProperty("--accent-2", project.accent2);
+      tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.project === key));
+
+      setText("statusText", project.status);
+      setText("projectKind", project.kind);
+      setText("projectTitle", project.title);
+      setText("projectLead", project.lead);
+      setText("projectIndex", project.index);
+      setText("projectCaption", project.caption);
+      setText("briefTitle", project.brief);
+      setText("projectSummary", project.summary);
+      setText("projectProblem", project.problem);
+
+      heroImage.style.opacity = "0";
+      heroImage.style.transform = "scale(1.035)";
+      window.setTimeout(() => {
+        heroImage.src = project.images[activeImage];
+        heroImage.alt = `${project.title} project preview`;
+        heroImage.style.opacity = "1";
+        heroImage.style.transform = "scale(1.01)";
+      }, 100);
+
+      sideImageA.src = project.images[(activeImage + 1) % project.images.length];
+      sideImageB.src = project.images[(activeImage + 2) % project.images.length];
+
+      renderList(featureList, project.features, (item) => `<li>${item}</li>`);
+      renderList(stackList, project.stack, (item) => `<span class="chip">${item}</span>`);
+      renderList(projectLinks, project.links, ([label, href]) => `<a class="link-btn" href="${href}" target="_blank" rel="noopener noreferrer"><span>${label}</span><span>Open</span></a>`);
+      renderList(thumbStrip, project.images, (src, index) => `
+        <button class="thumb ${index === activeImage ? "active" : ""}" type="button" data-thumb="${index}" aria-label="Show ${project.title} screenshot ${index + 1}">
+          <img src="${src}" alt="">
+        </button>
+      `);
+
+      burst(project);
+    }
+
+    function resizeCanvas() {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    const starPoints = Array.from({ length: 120 }, (_, index) => ({
+      x: ((index * 79) % 1000) / 1000,
+      y: ((index * 149) % 1000) / 1000,
+      z: 0.35 + (((index * 43) % 100) / 100) * 0.85,
+      s: 0.6 + (((index * 17) % 100) / 100) * 1.6
+    }));
+
+    function projectScreenPoint(key, time) {
+      const project = projects[key];
+      const [sx, sy, sz] = project.scene;
+      const drift = reducedMotion ? 0 : Math.sin(time * 0.00042 + projectKeys.indexOf(key) * 1.7) * 0.035;
+      const cameraX = pointer.x * 54;
+      const cameraY = pointer.y * 42;
+      const mapWidth = Math.min(width * 0.55, 720);
+      const mapHeight = Math.min(height * 0.43, 430);
+      const centerX = width * 0.5 + cameraX;
+      const centerY = height * 0.52 + cameraY;
+      const depth = 1 + sz * 0.18;
+      return {
+        x: centerX + (sx + drift) * mapWidth * depth,
+        y: centerY + (sy - drift * 0.4) * mapHeight * depth,
+        r: 26 + sz * 18,
+        depth
+      };
+    }
+
+    function drawDiamond(x, y, size, color, active) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.PI / 4);
+      ctx.beginPath();
+      ctx.rect(-size / 2, -size / 2, size, size);
+      ctx.fillStyle = active ? `${color}2e` : "rgba(255, 255, 255, 0.05)";
+      ctx.strokeStyle = color;
+      ctx.lineWidth = active ? 2 : 1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      const bracket = size * 0.62;
+      const gap = size * 0.72;
+      ctx.strokeStyle = active ? color : "rgba(255, 255, 255, 0.28)";
+      ctx.lineWidth = active ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(x - gap, y - bracket);
+      ctx.lineTo(x - gap, y - gap);
+      ctx.lineTo(x - bracket, y - gap);
+      ctx.moveTo(x + bracket, y - gap);
+      ctx.lineTo(x + gap, y - gap);
+      ctx.lineTo(x + gap, y - bracket);
+      ctx.moveTo(x + gap, y + bracket);
+      ctx.lineTo(x + gap, y + gap);
+      ctx.lineTo(x + bracket, y + gap);
+      ctx.moveTo(x - bracket, y + gap);
+      ctx.lineTo(x - gap, y + gap);
+      ctx.lineTo(x - gap, y + bracket);
+      ctx.stroke();
+    }
+
+    function burst(project) {
+      if (reducedMotion) return;
+      for (let i = 0; i < 32; i += 1) {
+        sparks.push({
+          x: width * 0.5,
+          y: height * 0.52,
+          vx: (Math.random() - 0.5) * 7,
+          vy: (Math.random() - 0.5) * 7,
+          life: 42 + Math.random() * 24,
+          color: i % 2 ? project.accent : project.accent2
+        });
+      }
+    }
+
+    function drawField(time = 0) {
+      ctx.clearRect(0, 0, width, height);
+      const active = projects[activeProject];
+
+      ctx.fillStyle = "#07090f";
+      ctx.fillRect(0, 0, width, height);
+
+      pointer.x += (pointer.tx - pointer.x) * 0.055;
+      pointer.y += (pointer.ty - pointer.y) * 0.055;
+
+      ctx.save();
+      ctx.translate(pointer.x * 22, pointer.y * 18);
+      starPoints.forEach((point, index) => {
+        const shimmer = reducedMotion ? 0.65 : 0.45 + Math.sin(time * 0.001 + index) * 0.22;
+        ctx.fillStyle = `rgba(255, 255, 255, ${shimmer})`;
+        ctx.fillRect(point.x * width, point.y * height, point.s, point.s);
+      });
+      ctx.restore();
+
+      const center = { x: width * 0.5 + pointer.x * 40, y: height * 0.52 + pointer.y * 28 };
+      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      ctx.lineWidth = 1;
+      for (let i = -4; i <= 4; i += 1) {
+        const y = center.y + i * 52;
+        ctx.beginPath();
+        ctx.moveTo(width * 0.14, y + pointer.y * i * 4);
+        ctx.lineTo(width * 0.86, y - pointer.y * i * 4);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = `${active.accent}58`;
+      ctx.beginPath();
+      ctx.ellipse(center.x, center.y, Math.min(width * 0.29, 430), Math.min(height * 0.19, 210), pointer.x * 0.12, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = `${active.accent2}38`;
+      ctx.beginPath();
+      ctx.ellipse(center.x, center.y, Math.min(width * 0.38, 560), Math.min(height * 0.25, 290), -0.18 + pointer.y * 0.09, 0, Math.PI * 2);
+      ctx.stroke();
+
+      nodeHits.length = 0;
+      projectKeys.forEach((key) => {
+        const project = projects[key];
+        const p = projectScreenPoint(key, time);
+        const isActive = key === activeProject;
+        const isHover = key === hoverProject;
+
+        ctx.strokeStyle = isActive ? project.accent : "rgba(255,255,255,0.13)";
+        ctx.lineWidth = isActive ? 1.8 : 1;
+        ctx.beginPath();
+        ctx.moveTo(center.x, center.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+
+        drawDiamond(p.x, p.y, p.r + (isHover ? 8 : 0), project.accent, isActive || isHover);
+
+        ctx.fillStyle = isActive ? project.accent : "rgba(255,255,255,0.72)";
+        ctx.font = "600 12px Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(project.title, p.x, p.y + p.r + 34);
+
+        nodeHits.push({ key, x: p.x, y: p.y, r: p.r + 18 });
+      });
+
+      ctx.strokeStyle = `${active.accent}d8`;
+      ctx.fillStyle = `${active.accent}20`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.rect(center.x - 34, center.y - 34, 68, 68);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = active.accent2;
+      ctx.font = "700 12px Segoe UI, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("AK", center.x, center.y + 4);
+
+      for (let i = sparks.length - 1; i >= 0; i -= 1) {
+        const spark = sparks[i];
+        spark.x += spark.vx;
+        spark.y += spark.vy;
+        spark.vx *= 0.965;
+        spark.vy *= 0.965;
+        spark.life -= 1;
+        ctx.fillStyle = `${spark.color}${Math.max(0, Math.min(255, spark.life * 4)).toString(16).padStart(2, "0")}`;
+        ctx.fillRect(spark.x, spark.y, 2, 2);
+        if (spark.life <= 0) sparks.splice(i, 1);
+      }
+
+      requestAnimationFrame(drawField);
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => selectProject(tab.dataset.project));
+    });
+
+    thumbStrip.addEventListener("click", (event) => {
+      const thumb = event.target.closest("[data-thumb]");
+      if (!thumb) return;
+      selectProject(activeProject, Number(thumb.dataset.thumb));
+    });
+
+    canvas.addEventListener("pointermove", (event) => {
+      pointer.tx = ((event.clientX / width) - 0.5) * 2;
+      pointer.ty = ((event.clientY / height) - 0.5) * 2;
+      hoverProject = "";
+      for (const hit of nodeHits) {
+        if (Math.hypot(event.clientX - hit.x, event.clientY - hit.y) <= hit.r) {
+          hoverProject = hit.key;
+          break;
+        }
+      }
+      canvas.style.cursor = hoverProject ? "pointer" : "default";
+    });
+
+    canvas.addEventListener("click", () => {
+      if (hoverProject) selectProject(hoverProject);
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        exitToDesktop();
+        return;
+      }
+      const number = Number(event.key);
+      if (number >= 1 && number <= projectKeys.length) {
+        selectProject(projectKeys[number - 1]);
+      }
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+
+    function exitToDesktop() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage("close-portfolio-overlay", "*");
+      } else if (history.length > 1) {
+        history.back();
+      } else {
+        window.location.href = "../code.html";
+      }
+    }
+
+    document.getElementById("exitBtn").addEventListener("click", exitToDesktop);
+
+    resizeCanvas();
+    selectProject("aniverse");
+    requestAnimationFrame(drawField);
+  </script>
+</body>
+</html>
