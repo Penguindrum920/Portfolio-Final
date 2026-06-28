@@ -1,16 +1,42 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
   "cleanUrls": false,
   "trailingSlash": false,
+
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
       ]
     }
   ],
+
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    {
+      "source": "/aniverse/:path*",
+      "destination": "https://aniverse-tau.vercel.app/:path*"
+    },
+    {
+      "source": "/cryo/:path*",
+      "destination": "https://cryo-iota.vercel.app/:path*"
+    },
+    {
+      "source": "/prism/:path*",
+      "destination": "https://frontend-alpha-lac-71.vercel.app/:path*"
+    },
+
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
   ]
 }
